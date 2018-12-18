@@ -590,6 +590,7 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
             'reorder' => true,
             'noticeStockLevel' => (int)$articleDetail->getStockMin(),
             'reorderStockLevel' => (int)$articleDetail->getStockMin(),
+			'deactivateAutoStockLevelCalculation' => (bool)$this->getConfig()['blisstribute-deactivate-auto-stock-level-calculation'],
             'vendorCollection' => array(
                 array(
                     'code' => $this->getSupplierCode($articleDetail),

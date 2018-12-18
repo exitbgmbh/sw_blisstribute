@@ -280,6 +280,18 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 ]
             );
         }
+		if (version_compare($version, '0.14.7', '<')) {
+            $form = $this->Form();
+            $form->setElement(
+                'checkbox',
+                'blisstribute-deactivate-auto-stock-level-calculation',
+                [
+                    'label' => 'Sollbestandsautomatik bei neuen Artikeln deaktivieren',
+                    'description' => 'Wenn aktiviert, wird die Sollbestandsautomatik neuen Artikel nicht automatisch aktiviert.',
+                    'value' => 0
+                ]
+            );
+        }
 
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config', 'frontend']];
     }
@@ -1206,6 +1218,15 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 'value' => 1
             ]
         );
+		$form->setElement(
+        	'checkbox',
+            'blisstribute-deactivate-auto-stock-level-calculation',
+            [
+            	'label' => 'Sollbestandsautomatik bei neuen Artikeln deaktivieren',
+                'description' => 'Wenn aktiviert, wird die Sollbestandsautomatik neuen Artikel nicht automatisch aktiviert.',
+                'value' => 0
+         	]
+		);
     }
     
     /**
