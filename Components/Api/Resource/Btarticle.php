@@ -103,7 +103,7 @@ class Btarticle extends BtArticleResource implements BatchInterface
 
         $config = Shopware()->Container()->get('shopware.plugin.config_reader')->getByPluginName('ExitBBlisstribute');
         $this->logDebug('plugin config loaded');
-        
+
         if (empty($detailId)) {
             throw new ApiException\ParameterMissingException();
         }
@@ -133,27 +133,27 @@ class Btarticle extends BtArticleResource implements BatchInterface
         }
 
         switch ($status) {
-            case 0: {
+            case 0: { // komplett offline
                 $params['active'] = false;
                 if ($syncLastStock) {
-                    $params['lastStock'] = false;
+                    $params['lastStock'] = true;
                 }
                 break;
             }
-            case 1: {
+            case 1: { // nachbeschaffbar
                 $params['active'] = true;
                 if ($syncLastStock) {
                     $params['lastStock'] = false;
                 }
                 break;
             }
-            case 2:
+            case 2: // nicht verfügbar
                 $params['active'] = true;
                 if ($syncLastStock) {
                     $params['lastStock'] = true;
                 }
                 break;
-            case 3:
+            case 3: // offline / nicht nachbeschaffbar
             default: {
                 if ($params['inStock'] > 0) {
                     $params['active'] = true;
@@ -161,7 +161,7 @@ class Btarticle extends BtArticleResource implements BatchInterface
                         $params['lastStock'] = true;
                     }
                 } else {
-                    $params['active'] = false;
+                    $params['active'] = true; // avoid loop with vhs
                     if ($syncLastStock) {
                         $params['lastStock'] = true;
                     }
@@ -220,11 +220,8 @@ class Btarticle extends BtArticleResource implements BatchInterface
             throw new ApiException\ValidationException($violations);
         }
 
-        $this->getManager()->persist($detail);
-        $this->getManager()->persist($attributes);
-
         $article = $detail->getArticle();
-        if ($syncLastStock) {			
+        if ($syncLastStock) {
             if (version_compare(Shopware()->Config()->version, '5.4.0', '<')) {
                 $this->logDebug(sprintf('%s - set article lastStock %s', $article->getId(), (int)$params['lastStock']));
                 $article->setLastStock($params['lastStock']);
@@ -240,79 +237,138 @@ class Btarticle extends BtArticleResource implements BatchInterface
             }
         }
 
-        if ($article->getConfiguratorSet() != null) {
-            $anythingActive = false;
-            $this->logDebug('configurator set is not null - scanning for active variant');
-
-            if ($detail->getKind() == 1 && $detail->getActive() == 0) {
-                $this->logDebug(sprintf('%s - detail inactive - searching for new kind 1', $detail->getId()));
-                /** @var Detail $currentNewDetail */
-                foreach ($article->getDetails() as $currentNewDetail) {
-                    if (!$currentNewDetail->getActive()) {
-                        continue;
-                    }
-
-                    if ($currentNewDetail->getInStock() == 0) {
-                        continue;
-                    }
-
-                    $this->logDebug(sprintf('%s - detail inactive - set new main detail %s', $detail->getId(), $currentNewDetail->getId()));
-                    $detail->setKind(2);
-                    $currentNewDetail->setKind(1);
-                    $this->getManager()->persist($currentNewDetail);
-                    $article->setMainDetail($currentNewDetail);
-                    $anythingActive = true;
-                    break;
-                }
-            } else {
-                $this->logDebug('search for any active variant');
-                /** @var Detail $currentNewDetail */
-                foreach ($article->getDetails() as $currentNewDetail) {
-                    if ($currentNewDetail->getActive()) {
-                        $anythingActive = true;
-                        break;
-                    }
-                }
-            }
-
-            if ($syncActive) {
-                if (($anythingActive || $detail->getActive())) {
-                    $this->logDebug(sprintf('%s - found anything active - set article active', $article->getId()));
-                    $article->setActive(true);
-                } else {
-                    $this->logDebug(sprintf('%s - did\'nt found anything active - set article inactive', $article->getId()));
-                    $article->setActive(false);
-                }
-            }
-
-        } else {
-            if ($syncActive) {
-                $this->logDebug('configurator set is null');
-                $article->setActive($detail->getActive());
-                $this->logDebug(sprintf('%s - set single article active = %s', $article->getId(), (int)$detail->getActive()));
-                $this->logDebug('set article to ' . (int)$detail->getActive());
-            }
+        if ($syncActive) {
+            $this->setArticleActivationState($article);
         }
 
-        // maybe a doctrine fix
-        // always create a changeset
-        $name = $article->getName();
-        $article->setName('dummy');
-        $article->setName($name);
+        $this->switchMainVariantIfRequired($detail, $article);
 
         try {
-            $this->logDebug(sprintf('%s - persist detail', $detail->getId()));
-            $this->getManager()->persist($detail);
-            $this->logDebug(sprintf('%s - persist article', $article->getId()));
+            $this->logDebug(sprintf('%s - persist and flush article', $article->getId()));
             $this->getManager()->persist($article);
+            $this->getManager()->flush($article);
 
-            $this->logDebug('flushing');
-            $this->flush();
+            $this->logDebug(sprintf('%s - persist and flush detail', $detail->getId()));
+            $this->getManager()->persist($detail);
+            $this->getManager()->flush($detail);
+
+            $this->logDebug(sprintf('%s - persist and flush attributes', $detail->getId()));
+            $this->getManager()->persist($attributes);
+            $this->getManager()->flush($attributes);
+
             $this->logDebug(sprintf('%s - update done', $detailId));
         } catch (\Exception $ex) {
             $this->logWarn('save failed - ' . $ex);
         }
 
         return $detail;
+    }
+
+    /**
+     * @param \Shopware\Models\Article\Detail $detail
+     * @param \Shopware\Models\Article\Article $article
+     */
+    protected function switchMainVariantIfRequired($detail, $article)
+    {
+        if ($article->getConfiguratorSet() != null) {
+
+            if ($detail->getKind() == 1 && !$this->isDetailAvailable($detail)) {
+
+                /** @var Detail $articleDetail */
+                foreach ($article->getDetails() as $articleDetail) {
+
+                    if ($this->isDetailAvailable($articleDetail)) {
+
+                        $this->switchMainDetail($article, $detail, $articleDetail);
+                        $this->getManager()->persist($articleDetail);
+                        $this->getManager()->flush($articleDetail);
+
+                        break;
+                    }
+                }
+            }
+            else if ($detail->getKind() != 1 && (!$this->isDetailAvailable($detail->getArticle()->getMainDetail()) || $detail->getArticle()->getMainDetail()->getKind() != 1) && $this->isDetailAvailable($detail)) {
+
+                $oldMainDetail = $article->getMainDetail();
+
+                $this->switchMainDetail($article, $oldMainDetail, $detail);
+                $this->getManager()->persist($oldMainDetail);
+                $this->getManager()->flush($oldMainDetail);
+            }
+        }
+    }
+
+    /**
+     * @param \Shopware\Models\Article\Article $article
+     * @param \Shopware\Models\Article\Detail $oldDetail
+     * @param \Shopware\Models\Article\Detail $newDetail
+     */
+    protected function switchMainDetail($article, $oldDetail, $newDetail)
+    {
+        $this->logDebug(sprintf('%s - set new main detail %s', $oldDetail->getId(), $newDetail->getId()));
+
+        $oldDetail->setKind(2);
+        $newDetail->setKind(1);
+
+        $article->setMainDetail($newDetail);
+
+        Shopware()->Events()->notify(
+            'ExitBBlisstribute_ApiResourceArticle_SwitchMainDetail',
+            [
+                'subject' => $this,
+                'old'     => $oldDetail,
+                'new'     => $newDetail
+            ]
+        );
+    }
+
+    /**
+     * @param \Shopware\Models\Article\Detail $detail
+     * @return bool
+     */
+    protected function isDetailAvailable($detail)
+    {
+        if (version_compare(Shopware()->Config()->version, '5.4.0', '<')) {
+            return $detail->getActive() == 1 && ($detail->getInStock() > 0 || !$detail->getArticle()->getLastStock());
+        }
+        else {
+            return $detail->getActive() == 1 && ($detail->getInStock() > 0 || !$detail->getLastStock());
+        }
+    }
+
+    /**
+     * @param \Shopware\Models\Article\Article $article
+     */
+    protected function setArticleActivationState($article)
+    {
+        $formerState = $article->getActive();
+        $article->setActive(0);
+
+        /** @var Detail $articleDetail */
+        foreach ($article->getDetails() as $articleDetail) {
+
+            if ($articleDetail->getActive()) {
+                $article->setActive(1);
+            }
+        }
+
+        if (!$formerState && $article->getActive()) {
+            Shopware()->Events()->notify(
+                'ExitBBlisstribute_ApiResourceArticle_ActivateArticle',
+                [
+                    'subject' => $this,
+                    'article' => $article
+                ]
+            );
+        }
+        else if ($formerState && !$article->getActive()) {
+            Shopware()->Events()->notify(
+                'ExitBBlisstribute_ApiResourceArticle_DeactivateArticle',
+                [
+                    'subject' => $this,
+                    'article' => $article
+                ]
+            );
+        }
     }
 }

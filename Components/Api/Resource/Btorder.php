@@ -160,21 +160,43 @@ class Btorder extends Resource
                 );
             }
 
-            $detailModel = $this->getOrderDetailRepository()
-                ->createQueryBuilder('details')
-                ->innerJoin('Shopware\Models\Attribute\Article', 'attributes', Join::WITH, 'attributes.articleId = details.articleId')
-                ->where('details.number = :orderNumber')
-                ->andWhere('attributes.blisstributeVhsNumber = :vhsArticleNumber')
-                ->setParameters(array(
-                    'orderNumber' => $orderNumber,
-                    'vhsArticleNumber' => $detail['blisstributeVhsNumber'],
-                ))
-                ->getQuery()
-                ->getOneOrNullResult();
+            if (!empty($detail['externalKey'])) {
+                $detailModels = $this->getOrderDetailRepository()
+                    ->createQueryBuilder('details')
+                    ->where('details.number = :orderNumber')
+                    ->andWhere('details.id = :externalKey') // fyi: could be the old counter values used and transmitted to bliss in the version
+                    // before today, but it should not lead to any problems as we use the order number also, so there should be no false matches
+                    ->setParameters(
+                        array(
+                            'orderNumber' => $orderNumber,
+                            'externalKey'      => $detail['externalKey'],
+                        )
+                    )
+                    ->getQuery()
+                    ->getResult();
+            }
 
-            if ($detailModel == null) {
+            if (empty($detailModels)) {
+                $detailModels = $this->getOrderDetailRepository()
+                    ->createQueryBuilder('details')
+                    ->innerJoin('Shopware\Models\Attribute\Article', 'attributes', Join::WITH, 'attributes.articleId = details.articleId')
+                    ->where('details.number = :orderNumber')
+                    ->andWhere('attributes.blisstributeVhsNumber = :vhsArticleNumber')
+                    ->setParameters(
+                        array(
+                            'orderNumber'      => $orderNumber,
+                            'vhsArticleNumber' => $detail['blisstributeVhsNumber'],
+                            // todo: ich denke dass sollte so sein:
+                            // 'vhsArticleNumber' => $detail['vhsArticleNumber'],
+                        )
+                    )
+                    ->getQuery()
+                    ->getResult();
+            }
+
+            if (empty($detailModels)) {
                 /** @var \Shopware\Models\Order\Detail $detailModel */
-                $detailModel = $this->getOrderDetailRepository()
+                $detailModels = $this->getOrderDetailRepository()
                     ->createQueryBuilder('details')
                     ->where('details.number = :orderNumber')
                     ->andWhere('details.articleNumber = :articleNumber')
@@ -183,22 +205,24 @@ class Btorder extends Resource
                         'articleNumber' => $articleNumber
                     ))
                     ->getQuery()
-                    ->getOneOrNullResult();
+                    ->getResult();
 
-                if ($detailModel == null) {
+                if (empty($detailModels)) {
                     throw new ApiException\NotFoundException(
                         "Detail by orderId " . $orderNumber . " and articleNumber " . $articleNumber . " not found"
                     );
                 }
             }
 
-            $detailModel->getAttribute()
-                ->setBlisstributeQuantityCanceled($detail['attribute']['blisstributeQuantityCanceled'])
-                ->setBlisstributeQuantityReturned($detail['attribute']['blisstributeQuantityReturned'])
-                ->setBlisstributeQuantityShipped($detail['attribute']['blisstributeQuantityShipped'])
-                ->setBlisstributeDateChanged($detail['attribute']['blisstributeDateChanged']);
+            foreach($detailModels as $detailModel) {
+                $detailModel->getAttribute()
+                    ->setBlisstributeQuantityCanceled($detail['attribute']['blisstributeQuantityCanceled'])
+                    ->setBlisstributeQuantityReturned($detail['attribute']['blisstributeQuantityReturned'])
+                    ->setBlisstributeQuantityShipped($detail['attribute']['blisstributeQuantityShipped'])
+                    ->setBlisstributeDateChanged($detail['attribute']['blisstributeDateChanged']);
 
-            $this->getManager()->persist($detailModel);
+                $this->getManager()->persist($detailModel);
+            }
         }
     }
 }

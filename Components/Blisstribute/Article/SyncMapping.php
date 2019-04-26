@@ -77,8 +77,8 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
             'releaseDate' => $releaseDate,
             'removeDate' => $removeDate,
             'reorder' => true,
-            'customsTariffNumber' => '',
-            'countryOfOriginCode' => '',
+            'customsTariffNumber' => $this->_getCustomsTariffNumber($this->getArticle()->getMainDetail()),
+            'countryOfOriginCode' => $this->_getCountryOfOrigin($this->getArticle()->getMainDetail()),
             'sex' => 0,
             'sale' => null,
             'priceCode' => '0000',
@@ -106,6 +106,26 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
                 'article' => $this->getArticle()
             )
         );
+    }
+
+    /**
+     * @param Detail $mainDetail
+     *
+     * @return string
+     */
+    protected function _getCustomsTariffNumber($mainDetail)
+    {
+        return $mainDetail->getAttribute()->getBlisstributeCustomsTariffNumber();
+    }
+
+    /**
+     * @param Detail $mainDetail
+     *
+     * @return string
+     */
+    protected function _getCountryOfOrigin($mainDetail)
+    {
+        return $mainDetail->getAttribute()->getBlisstributeCountryOfOrigin();
     }
 
     /**
@@ -317,32 +337,24 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
     }
 
     /**
-     * @todo implement tax rules ??
-     * @todo better mapping of vat types??
-     *
      * @return array
      */
     protected function buildVatCollection()
     {
         $vatCollection = array();
-        $articleTax = $this->getArticle()->getTax()->getTax();
-        if ($articleTax > 10) {
-            $vatType = 'HIGH';
-        } elseif ($articleTax > 5) {
-            $vatType = 'LOW';
-        } elseif ($articleTax > 0) {
-            $vatType = 'VERY-LOW';
-        } else {
-            $vatType = 'ZERO';
+        $tax = $this->getArticle()->getTax();
+
+        $vatPercentage = $tax->getTax();
+        if ($vatPercentage > 10 || preg_match('/HIGH/i', $tax->getName())) {
+            $vatType = 'H';
+        } elseif ($vatPercentage > 5 || preg_match('/LOW/i', $tax->getName())) {
+            $vatType = 'L';
+        }  else {
+            $vatType = 'Z';
         }
 
-        $countryRepository = Shopware()->Models()->getRepository('Shopware\Models\Country\Country');
-        $germany = $countryRepository->findOneBy(array(
-            'iso' => 'DE'
-        ));
-
         $vatCollection[] = array(
-            'countryIsoCode' => $germany->getIso(),
+            'countryIsoCode' => 'DE',
             'vatType' => $vatType
         );
 
@@ -483,72 +495,45 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
     }
 
     /**
-     * @param int $mediaId
+     * @param Detail $detail
      * @return string
      */
-    protected function _loadImage($mediaId)
+    protected function getImageUrl($detail)
     {
-        try {
-            /** @var \Shopware\Components\Api\Resource\Media $mediaResource */
-            $mediaResource = Shopware\Components\Api\Manager::getResource('Media');
-            $media = $mediaResource->getOne($mediaId);
-            $this->logDebug('articleSyncMapping::_loadImage::got media data ' . json_encode($media));
+        /** @var \Shopware\Models\Article\Repository $respository */
+        $repository = Shopware()->Models()->getRepository(\Shopware\Models\Article\Article::class);
 
-            return trim($media['path']);
-        } catch (Exception $ex) {
-            return null;
+        $mainImage = null;
+
+        $variantImages = $repository
+            ->getVariantImagesByArticleNumberQuery($detail->getNumber())
+            ->getArrayResult();
+
+        if (empty($variantImages)) {
+
+            $articleImages = $repository
+                ->getArticleImagesQuery($detail->getArticleId())
+                ->getArrayResult();
+
+            $mainImage = !empty($articleImages) ? $articleImages[0] : null;
         }
+        else {
+            $mainImage = $variantImages[0];
+        }
+
+        return $mainImage ? $this->getMediaUrlByImage($mainImage) : null;
     }
 
     /**
-     * @param Detail $articleDetail
-     * @return string
+     * @param $image
+     * @return null|string
      */
-    protected function getImageUrl(Detail $articleDetail)
+    protected function getMediaUrlByImage($image)
     {
-        /** @var \Shopware\Components\Api\Resource\Variant $variantResource */
-        $variantResource = Shopware\Components\Api\Manager::getResource('Variant');
-        $detail = $variantResource->getOne($articleDetail->getId());
+        /** @var \Shopware\Bundle\MediaBundle\MediaService $mediaService */
+        $mediaService = $this->container->get('shopware_media.media_service');
 
-        $imageCollection = $detail['images'];
-        if (count($imageCollection) == 0) {
-            $sql = 'SELECT media_id FROM s_articles_img WHERE articleID = :articleId AND main = 1 AND media_id IS NOT NULL';
-            $mediaId = (int)Shopware()->Db()->fetchOne($sql, array('articleId' => (int)$articleDetail->getArticle()->getId()));
-
-            if ($mediaId) {
-                return $this->_loadImage($mediaId);
-            }
-
-            return null;
-        }
-
-        $mediaId = 0;
-        $parentId = 0;
-        foreach ($imageCollection as $currentImageData) {
-            if ((int)$currentImageData['mediaId'] == 0) {
-                continue;
-            }
-
-            $mediaId = (int)$currentImageData['mediaId'];
-            break;
-        }
-
-        if ($mediaId == 0) {
-            $parentId = (int)$imageCollection[0]['parentId'];
-        }
-
-        if ($parentId == 0) {
-            return '';
-        }
-
-        if ($mediaId != 0) {
-            return $this->_loadImage($mediaId);
-        }
-
-        $sql = 'SELECT media_id FROM s_articles_img WHERE id = :parentId';
-        $mediaId = (int)Shopware()->Db()->fetchOne($sql, array('parentId' => (int)$parentId));
-
-        return $this->_loadImage($mediaId);
+        return $mediaService->getUrl('media/image/' . $image['path'] . '.' . $image['extension']);
     }
 
     /**
@@ -574,6 +559,7 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
             'erpArticleNumber' => $this->getArticleVhsNumber($articleDetail),
             'articleNumber' => $articleDetail->getNumber(),
             'ean13' => $articleDetail->getEan(),
+            'manufacturerArticleNumber' => $this->_getManufacturerArticleNumber($articleDetail),
             'ean10' => '',
             'isrc' => '',
             'isbn' => '',
@@ -635,6 +621,20 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
 
     /**
      * @param Detail $articleDetail
+     * @return mixed
+     */
+    private function _getManufacturerArticleNumber($articleDetail)
+    {
+        $manufacturerArticleNumber = '';
+        if ($articleDetail->getSupplierNumber() && $this->getConfig()['blisstribute-article-sync-manufacturer-article-number']) {
+            $manufacturerArticleNumber = $articleDetail->getSupplierNumber();
+        }
+
+        return $manufacturerArticleNumber;
+    }
+
+    /**
+     * @param Detail $articleDetail
      * @return string
      */
     private function getArticleVhsNumber($articleDetail)
@@ -668,8 +668,8 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
      */
     private function determineArticleActiveState($articleDetail)
     {
-        $article = $this->getModelEntity()->getArticle();
-        if (!$article->getActive()) {
+        $mainArticleActive = (bool)$this->getArticle()->getActive();
+        if (!$mainArticleActive) {
             return false;
         }
 
@@ -746,6 +746,8 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
                 'deliverer' => 'foreign'
             );
         }
+
+
 
         return $tagCollection;
     }
