@@ -200,10 +200,18 @@ class Shopware_Controllers_Backend_BlisstributeArticle extends Shopware_Controll
      * starts syncing of selected articles
      *
      * @return void
+     * @throws Exception
      */
     public function syncAction()
     {
         try {
+            $pluginConfig = Shopware()->Container()->get('plugins')->Backend()->ExitBBlisstribute()->Config();
+
+            // If the user disabled article synchronization, stop here.
+            if (!$pluginConfig->get('blisstribute-article-sync-enabled')) {
+                throw new Exception('Article synchronization is disabled.');
+            }
+
             $blisstributeArticleId = $this->Request()->getParam('id');
             $blisstributeArticle = $this->getRepository()->find($blisstributeArticleId);
             if ($blisstributeArticle === null) {

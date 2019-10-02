@@ -30,6 +30,14 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $pluginConfig = Shopware()->Container()->get('plugins')->Backend()->ExitBBlisstribute()->Config();
+
+        // If the user disabled article synchronization, stop here.
+        if (!$pluginConfig->get('blisstribute-article-sync-enabled')) {
+            $output->writeln('<error>Article synchronization is disabled.');
+            return;
+        }
+
         // The free text field / attribute "identification" contains the unique ID of the article.
         $identification = $input->getArgument('identification');
         $output->writeln('<info>blisstribute article export started for article(s) identified by ' . $identification . '</info>');
