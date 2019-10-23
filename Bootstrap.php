@@ -10,7 +10,6 @@ require_once __DIR__ . '/Components/Blisstribute/Order/Sync.php';
 use \Shopware\CustomModels\Blisstribute\BlisstributeCoupon;
 use \Shopware\CustomModels\Blisstribute\BlisstributeOrder;
 use Doctrine\Common\Collections\ArrayCollection;
-use Shopware\CustomModels\Blisstribute\BlisstributeShipment;
 use Shopware\ExitBBlisstribute\Subscribers\ControllerSubscriber;
 use Shopware\ExitBBlisstribute\Subscribers\ModelSubscriber;
 use Shopware\ExitBBlisstribute\Subscribers\ServiceSubscriber;
