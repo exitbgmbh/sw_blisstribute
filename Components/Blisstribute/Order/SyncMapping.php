@@ -18,7 +18,6 @@ use Doctrine\ORM\NonUniqueResultException;
 
 use Shopware\CustomModels\Blisstribute\BlisstributeOrder;
 use Shopware\CustomModels\Blisstribute\BlisstributePaymentRepository;
-use Shopware\CustomModels\Blisstribute\BlisstributeShipmentRepository;
 use VIISON\AddressSplitter\AddressSplitter;
 
 /**

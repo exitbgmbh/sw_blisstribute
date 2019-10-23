@@ -66,7 +66,7 @@ class BlisstributeCoupon extends ModelEntity
      *
      * @param int $id
      *
-     * @return BlisstributeShipment
+     * @return BlisstributeCoupon
      */
     public function setId($id)
     {
