@@ -6,7 +6,6 @@ require_once __DIR__ . '/Components/Blisstribute/Command/OrderExport.php';
 require_once __DIR__ . '/Components/Blisstribute/Command/ArticleExport.php';
 require_once __DIR__ . '/Components/Blisstribute/Article/Sync.php';
 require_once __DIR__ . '/Components/Blisstribute/Order/Sync.php';
-require_once __DIR__ . '/Models/Blisstribute/BlisstributeShipment.php';
 
 use \Shopware\CustomModels\Blisstribute\BlisstributeCoupon;
 use \Shopware\CustomModels\Blisstribute\BlisstributeOrder;
@@ -490,6 +489,52 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             );
 
             $this->get('db')->query("DROP TABLE IF EXISTS s_plugin_blisstribute_shipment");
+        }
+
+        if (version_compare($version, '1.1.0', '<')) {
+            $this->Form()->removeElement('blisstribute-soap-host');
+
+            $this
+                ->Form()
+                ->getElement('blisstribute-soap-protocol')
+                ->setName('blisstribute-api-protocol')
+                ->setLabel('API Protokoll')
+                ->setDescription('API-Protokoll für den Verbindungsaufbau zum Blisstribute-System');
+
+            $this
+                ->Form()
+                ->getElement('blisstribute-soap-port')
+                ->setName('blisstribute-api-port')
+                ->setLabel('API Port')
+                ->setDescription('API-Port für den Verbindungsaufbau zum Blisstribute-System');
+
+            $this
+                ->Form()
+                ->getElement('blisstribute-rest-host')
+                ->setName('blisstribute-api-host')
+                ->setLabel('API Host')
+                ->setDescription('API-Hostname für den Verbindungsaufbau zum Blisstribute-System');
+
+            $this
+                ->Form()
+                ->getElement('blisstribute-soap-client')
+                ->setName('blisstribute-api-client')
+                ->setLabel('API Client')
+                ->setDescription('API-Klientenkürzel für Ihren Blisstribute-Mandanten');
+
+            $this
+                ->Form()
+                ->getElement('blisstribute-soap-username')
+                ->setName('blisstribute-api-username')
+                ->setLabel('API Benutzername')
+                ->setDescription('API-Benutzername für Ihren Blisstribute-Mandanten');
+
+            $this
+                ->Form()
+                ->getElement('blisstribute-soap-password')
+                ->setName('blisstribute-api-password')
+                ->setLabel('API Passwort')
+                ->setDescription('API-Passwort für Ihren Blisstribute-Mandanten');
         }
 
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
@@ -1207,10 +1252,10 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
 
         $form->setElement(
             'select',
-            'blisstribute-soap-protocol',
+            'blisstribute-api-protocol',
             [
-                'label' => 'Protokoll',
-                'description' => 'SOAP-Protokoll für den Verbindungsaufbau zum Blisstribute-System',
+                'label' => 'API Protokoll',
+                'description' => 'API-Protokoll für den Verbindungsaufbau zum Blisstribute-System',
                 'store' => [
                     [1, 'http'],
                     [2, 'https']
@@ -1220,60 +1265,50 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
         );
         $form->setElement(
             'text',
-            'blisstribute-soap-host',
+            'blisstribute-api-host',
             [
-                'label' => 'Host', // SOAP
-                'description' => 'SOAP-Hostname für den Verbindungsaufbau zum Blisstribute-System',
-                'maxLength' => 255,
-                'value' => ''
-            ]
-        );
-        $form->setElement(
-            'text',
-            'blisstribute-rest-host',
-            [
-                'label' => 'REST Host',
-                'description' => 'REST-Hostname für den Verbindungsaufbau zum Blisstribute-System',
+                'label' => 'API Host',
+                'description' => 'API-Hostname für den Verbindungsaufbau zum Blisstribute-System',
                 'maxLength' => 255,
                 'value' => ''
             ]
         );
         $form->setElement(
             'number',
-            'blisstribute-soap-port',
+            'blisstribute-api-port',
             [
-                'label' => 'Port',
-                'description' => 'SOAP-Port für den Verbindungsaufbau zum Blisstribute-System',
+                'label' => 'API-Port',
+                'description' => 'API-Port für den Verbindungsaufbau zum Blisstribute-System',
                 'maxLength' => 4,
                 'value' => 80
             ]
         );
         $form->setElement(
             'text',
-            'blisstribute-soap-client',
+            'blisstribute-api-client',
             [
-                'label' => 'SOAP-Client',
-                'description' => 'SOAP-Klientenkürzel für Ihren Blisstribute-Mandanten',
+                'label' => 'API-Client',
+                'description' => 'API-Klientenkürzel für Ihren Blisstribute-Mandanten',
                 'maxLength' => 3,
                 'value' => ''
             ]
         );
         $form->setElement(
             'text',
-            'blisstribute-soap-username',
+            'blisstribute-api-username',
             [
-                'label' => 'SOAP-Benutzername',
-                'description' => 'SOAP-Benutzername für Ihren Blisstribute-Mandanten',
+                'label' => 'API-Benutzername',
+                'description' => 'API-Benutzername für Ihren Blisstribute-Mandanten',
                 'maxLength' => 255,
                 'value' => ''
             ]
         );
         $form->setElement(
             'text',
-            'blisstribute-soap-password',
+            'blisstribute-api-password',
             [
-                'label' => 'SOAP-Passwort',
-                'description' => 'SOAP-Passwort für Ihren Blisstribute-Mandanten',
+                'label' => 'API-Passwort',
+                'description' => 'API-Passwort für Ihren Blisstribute-Mandanten',
                 'maxLength' => 255,
                 'value' => ''
             ]
@@ -1608,24 +1643,24 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
 
         $translations = [
             'en_GB' => [
-                'blisstribute-soap-protocol' => 'protocol',
-                'blisstribute-soap-host' => 'host',
-                'blisstribute-soap-port' => 'port',
-                'blisstribute-soap-client' => 'soap-client',
-                'blisstribute-soap-username' => 'soap-username',
-                'blisstribute-soap-password' => 'soap-password',
-                'blisstribute-http-login' => 'http-username',
-                'blisstribute-http-password' => 'http-password',
-                'blisstribute-auto-sync-order' => 'auto sync order',
-                'blisstribute-auto-hold-order' => 'auto hold order',
-                'blisstribute-auto-lock-order' => 'auto lock order',
-                'blisstribute-default-advertising-medium' => 'default advertising medium',
-                'blisstribute-google-address-validation' => 'use google address validation',
-                'blisstribute-google-maps-key' => 'google maps key',
-                'blisstribute-transfer-orders' => 'transfer orders without verification',
-                'blisstribute-transfer-shop-article-prices' => 'transfer article prices of each shop',
-                'blisstribute-article-mapping-classification3' => 'Classification 3 mapping',
-                'blisstribute-article-mapping-classification4' => 'Classification 4 mapping'
+                'blisstribute-api-protocol'                    => 'API Protocol',
+                'blisstribute-api-host'                        => 'API Host',
+                'blisstribute-api-port'                        => 'API Port',
+                'blisstribute-api-client'                      => 'API Client',
+                'blisstribute-api-username'                    => 'API Username',
+                'blisstribute-api-password'                    => 'API Password',
+                'blisstribute-http-login'                      => 'HTTP Username',
+                'blisstribute-http-password'                   => 'HTTP Password',
+                'blisstribute-auto-sync-order'                 => 'Auto Sync Order',
+                'blisstribute-auto-hold-order'                 => 'Auto Hold Order',
+                'blisstribute-auto-lock-order'                 => 'Auto Lock Order',
+                'blisstribute-default-advertising-medium'      => 'Default Advertising Medium',
+                'blisstribute-google-address-validation'       => 'Use Google Address Validation',
+                'blisstribute-google-maps-key'                 => 'Google Maps Key',
+                'blisstribute-transfer-orders'                 => 'Transfer Orders without Verification',
+                'blisstribute-transfer-shop-article-prices'    => 'Transfer Article Prices of each Shop',
+                'blisstribute-article-mapping-classification3' => 'Classification 3 Mapping',
+                'blisstribute-article-mapping-classification4' => 'Classification 4 Mapping'
             ],
         ];
 

@@ -145,14 +145,14 @@ class Shopware_Components_Blisstribute_Order_Sync extends Shopware_Components_Bl
             $restClient = new Shopware_Components_Blisstribute_RestClient(
                 sprintf(
                     '%s://%s',
-                    ($this->config->get('blisstribute-soap-protocol') == 1 ? 'http' : 'https'),
-                    $this->config->get('blisstribute-rest-host')
+                    ($this->config->get('blisstribute-api-protocol') == 1 ? 'http' : 'https'),
+                    $this->config->get('blisstribute-api-host')
                 )
             );
             $restClient->authenticateWithClientUserPassword(
-                $this->config->get('blisstribute-soap-client'),
-                $this->config->get('blisstribute-soap-username'),
-                $this->config->get('blisstribute-soap-password')
+                $this->config->get('blisstribute-api-client'),
+                $this->config->get('blisstribute-api-username'),
+                $this->config->get('blisstribute-api-password')
             );
             $orderResponse = $restClient->createOrder($orderData);
 
