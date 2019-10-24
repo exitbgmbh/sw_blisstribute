@@ -420,39 +420,15 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
      * Build payment data.
      *
      * @return array
-     * @throws Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException
-     * @throws NonUniqueResultException
+     * @throws Exception
      */
     protected function buildPaymentData()
     {
-        $paymentRepository = $this->getPaymentMappingRepository();
-        $payment = $paymentRepository->findOneByPayment($this->getModelEntity()->getOrder()->getPayment()->getId());
-        if ($payment === null) {
-            throw new Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException(
-                'no payment mapping given for order ' . $this->getModelEntity()->getOrder()->getNumber()
-            );
-        }
+        $order          = $this->getModelEntity()->getOrder();
+        $paymentFactory = new Shopware_Components_Blisstribute_Order_Payment_PaymentFactory();
+        $payment        = $paymentFactory->createPaymentByOrder($order);
 
-        if (trim($payment->getClassName()) == '') {
-            throw new Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException(
-                'no payment mapping class found for order ' . $this->getModelEntity()->getOrder()->getNumber()
-            );
-        }
-
-        $paymentClassFileName = $payment->getClassName();
-        $paymentClass = 'Shopware_Components_Blisstribute_Order_Payment_' . $paymentClassFileName;
-
-        /** @noinspection PhpIncludeInspection */
-        include_once __DIR__ . '/Payment/' . $paymentClassFileName . '.php';
-        if (!class_exists($paymentClass)) {
-            throw new Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException(
-                'no payment mapping class found for order ' . $this->getModelEntity()->getOrder()->getNumber()
-            );
-        }
-
-        /** @var Shopware_Components_Blisstribute_Order_Payment_Abstract $orderPayment */
-        $orderPayment = new $paymentClass($this->getModelEntity()->getOrder(), $payment);
-        return $orderPayment->getPaymentInformation();
+        return $payment->getInfo();
     }
 
     /**
