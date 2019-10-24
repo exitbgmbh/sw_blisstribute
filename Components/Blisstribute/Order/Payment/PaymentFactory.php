@@ -6,19 +6,22 @@ class Shopware_Components_Blisstribute_Order_Payment_PaymentFactory
 {
     /**
      * Register extended payment methods here.
+     * Payment codes that are not listed default to Shopware_Components_Blisstribute_Order_Payment_Payment.
      *
      * @var array
      */
     private $extendedPaymentsByCode = [
-        'amazonPayments' => Shopware_Components_Blisstribute_Order_Payment_AmazonPayments::class,
-        'debitAdvice'    => Shopware_Components_Blisstribute_Order_Payment_DebitAdvice::class,
-        'sofort'         => Shopware_Components_Blisstribute_Order_Payment_Sofort::class,
-        'payolution'     => Shopware_Components_Blisstribute_Order_Payment_Payolution::class,
-        'payolutionELV'  => Shopware_Components_Blisstribute_Order_Payment_PayolutionELV::class,
-        'payone'         => Shopware_Components_Blisstribute_Order_Payment_PayOneCC::class,
-        'payoneELV'      => Shopware_Components_Blisstribute_Order_Payment_PayOneELV::class,
-        'paypal'         => Shopware_Components_Blisstribute_Order_Payment_PayPal::class,
-        'paypalPlus'     => Shopware_Components_Blisstribute_Order_Payment_PayPalPlus::class,
+        'amazonPayments'        => Shopware_Components_Blisstribute_Order_Payment_AmazonPayments::class,
+        'debitAdvice'           => Shopware_Components_Blisstribute_Order_Payment_DebitAdvice::class,
+        'heidelpayCC'           => Shopware_Components_Blisstribute_Order_Payment_Heidelpay::class,
+        'heidelpayIdeal'        => Shopware_Components_Blisstribute_Order_Payment_Heidelpay::class,
+        'heidelpayPostFinance'  => Shopware_Components_Blisstribute_Order_Payment_Heidelpay::class,
+        'heidelpaySofort'       => Shopware_Components_Blisstribute_Order_Payment_Heidelpay::class,
+        'payolution'            => Shopware_Components_Blisstribute_Order_Payment_Payolution::class,
+        'payolutionELV'         => Shopware_Components_Blisstribute_Order_Payment_Payolution::class,
+        'payolutionInstallment' => Shopware_Components_Blisstribute_Order_Payment_Payolution::class,
+        'payone'                => Shopware_Components_Blisstribute_Order_Payment_PayOne::class,
+        'payoneELV'             => Shopware_Components_Blisstribute_Order_Payment_PayOne::class,
     ];
 
     /**
@@ -43,6 +46,6 @@ class Shopware_Components_Blisstribute_Order_Payment_PaymentFactory
             return new Shopware_Components_Blisstribute_Order_Payment_Payment($order);
         }
 
-        return $payment;
+        return new $payment($order);
     }
 }
