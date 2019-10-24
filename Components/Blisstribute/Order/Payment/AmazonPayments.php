@@ -1,31 +1,22 @@
 <?php
 
-require_once __DIR__ . '/AbstractExternalPayment.php';
-
 /**
- * amazonpayments payment implementation
- *
  * @author    Julian Engler
  * @package   Shopware\Components\Blisstribute\Order\Payment
  * @copyright Copyright (c) 2016
  * @since     1.0.0
  */
 class Shopware_Components_Blisstribute_Order_Payment_AmazonPayments
-    extends Shopware_Components_Blisstribute_Order_Payment_AbstractExternalPayment
+    extends Shopware_Components_Blisstribute_Order_Payment_Payment
 {
     /**
      * @inheritdoc
-     */
-    protected $code = 'amazonPayments';
-
-    /**
-     * @inheritdoc
+     * @throws Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException
      */
     protected function getAdditionalPaymentInformation()
     {
+        $captureNow     = Shopware()->Config()->get('captureNow', false);
         $orderAttribute = $this->order->getAttribute();
-
-        $captureNow = Shopware()->Config()->get('captureNow', false);
 
         if ((bool)$captureNow) {
             $resToken = trim($orderAttribute->getBestitAmazonCaptureId());
@@ -39,9 +30,9 @@ class Shopware_Components_Blisstribute_Order_Payment_AmazonPayments
             );
         }
 
-        return array(
-            'token' => $resToken,
+        return [
+            'token'          => $resToken,
             'tokenReference' => trim($this->order->getTransactionId()),
-        );
+        ];
     }
 }
