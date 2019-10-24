@@ -17,7 +17,6 @@ use Shopware\Models\Voucher\Repository as VoucherRepository;
 use Doctrine\ORM\NonUniqueResultException;
 
 use Shopware\CustomModels\Blisstribute\BlisstributeOrder;
-use Shopware\CustomModels\Blisstribute\BlisstributePaymentRepository;
 use VIISON\AddressSplitter\AddressSplitter;
 
 /**
@@ -91,16 +90,6 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         $this->logInfo('orderSyncMapping::getConfig::using shop ' . $shop->getId() . ' / ' . $shop->getName());
         $config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName('ExitBBlisstribute', $shop);
         return $config;
-    }
-
-    /**
-     * return blisstribute payment mapping database repository
-     *
-     * @return BlisstributePaymentRepository
-     */
-    protected function getPaymentMappingRepository()
-    {
-        return Shopware()->Models()->getRepository('Shopware\CustomModels\Blisstribute\BlisstributePayment');
     }
 
     /**

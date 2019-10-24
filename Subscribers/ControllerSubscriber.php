@@ -150,19 +150,6 @@ class ControllerSubscriber implements SubscriberInterface
      *
      * @return string
      */
-    public function getPaymentMappingController(\Enlight_Event_EventArgs $eventArgs)
-    {
-        $this->registerDirs();
-        return __DIR__ . '/../Controllers/Backend/BlisstributePaymentMapping.php';
-    }
-
-    /**
-     * return payment mapping controller path
-     *
-     * @param \Enlight_Event_EventArgs $eventArgs
-     *
-     * @return string
-     */
     public function getCouponMappingController(\Enlight_Event_EventArgs $eventArgs)
     {
         $this->registerDirs();

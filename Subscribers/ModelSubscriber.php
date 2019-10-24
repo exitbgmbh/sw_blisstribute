@@ -376,47 +376,6 @@ class ModelSubscriber implements SubscriberInterface
     }
 
     /**
-     * @param \Enlight_Event_EventArgs $eventArgs
-     *
-     * @return void
-     */
-    public function postPersistPayment(\Enlight_Event_EventArgs $eventArgs)
-    {
-        $modelManager = $this->container->get('models');
-
-        /** @var \Shopware\Models\Payment\Payment $payment */
-        $payment = $eventArgs->get('entity');
-
-        $blisstributePayment = new \Shopware\CustomModels\Blisstribute\BlisstributePayment();
-        $blisstributePayment->setPayment($payment)->setIsPayed(false);
-
-        $modelManager->persist($blisstributePayment);
-        $modelManager->flush();
-    }
-
-    /**
-     * @param \Enlight_Event_EventArgs $eventArgs
-     *
-     * @return void
-     */
-    public function preRemovePayment(\Enlight_Event_EventArgs $eventArgs)
-    {
-        $modelManager = $this->container->get('models');
-
-        /** @var \Shopware\Models\Payment\Payment $payment */
-        $payment = $eventArgs->get('entity');
-
-        $repository = $modelManager->getRepository('\Shopware\CustomModels\Blisstribute\BlisstributePayment');
-        $blisstributePayment = $repository->findOneByPayment($payment->getId());
-        if ($blisstributePayment === null) {
-            return;
-        }
-
-        $modelManager->remove($blisstributePayment);
-        $modelManager->flush();
-    }
-
-    /**
      * blisstribute order event fired before db insert
      *
      * @param \Enlight_Event_EventArgs $eventArgs
