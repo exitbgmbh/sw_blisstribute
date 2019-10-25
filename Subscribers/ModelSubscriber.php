@@ -43,8 +43,6 @@ class ModelSubscriber implements SubscriberInterface
             'Shopware\Models\Property\Group::preRemove' => 'preRemoveProperty',
             'Shopware\Models\Voucher\Voucher::postPersist' => 'postPersistVoucher',
             'Shopware\Models\Voucher\Voucher::preRemove' => 'preRemoveVoucher',
-            'Shopware\Models\Payment\Payment::postPersist' => 'postPersistPayment',
-            'Shopware\Models\Payment\Payment::preRemove' => 'preRemovePayment',
 
             // blisstribute models
             'Shopware\CustomModels\Blisstribute\BlisstributeOrder::prePersist' => 'prePersistBlisstributeOrder',
