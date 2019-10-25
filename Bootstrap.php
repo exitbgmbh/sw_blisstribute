@@ -657,6 +657,20 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             "'blisstributeSupplierStock', 0, 0)"
         );
 
+        $crud->update('s_core_paymentmeans_attributes', 'blisstribute_payment_code', 'string', [
+            'custom' => 1,
+            'displayInBackend' => true,
+            'label' => 'VHS - Payment Code',
+            'supportText' => 'Der Payment Code für diese Bestellung.'
+        ]);
+
+        $crud->update('s_core_paymentmeans_attributes', 'blisstribute_payment_is_payed', 'boolean', [
+            'custom' => 1,
+            'displayInBackend' => true,
+            'label' => 'VHS - Als bezahlt markieren',
+            'supportText' => 'Bestellungen mit dieser Zahlart werden mit dem Status "bezahlt" übermittelt.'
+        ]);
+
         $metaDataCache = Shopware()->Models()->getConfiguration()->getMetadataCacheImpl();
         $metaDataCache->deleteAll();
         Shopware()->Models()->generateAttributeModels(['s_articles_attributes', 's_categories_attributes', 's_order_details_attributes', 's_order_basket_attributes', 's_premium_dispatch_attributes']);
