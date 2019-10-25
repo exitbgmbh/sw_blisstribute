@@ -1246,11 +1246,8 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 . "CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, a.id, 0, 1, 0, NULL FROM s_articles AS a",
                 "INSERT IGNORE INTO s_plugin_blisstribute_article_type (created_at, modified_at, s_filter_id, "
                 . "article_type) SELECT CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, id, 4 FROM s_filter",
-                "INSERT IGNORE INTO s_plugin_blisstribute_payment (mapping_class_name, flag_payed, "
-                . "s_core_paymentmeans_id) SELECT NULL, 0, cp.id FROM s_core_paymentmeans AS cp",
                 "INSERT IGNORE INTO s_plugin_blisstribute_coupon (s_voucher_id, flag_money_voucher) "
                 . "SELECT v.id, 0 FROM s_emarketing_vouchers AS v",
-                "DELETE FROM s_plugin_blisstribute_payment WHERE s_core_paymentmeans_id NOT IN (SELECT id FROM s_core_paymentmeans)",
             ];
 
             foreach ($defaultTableData as $currentDataSet) {

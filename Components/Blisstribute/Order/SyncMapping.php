@@ -116,6 +116,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
      * @throws Shopware_Components_Blisstribute_Exception_OrderShipmentMappingException
      * @throws Shopware_Components_Blisstribute_Exception_ValidationMappingException
      * @throws NonUniqueResultException
+     * @throws Exception
      */
     protected function buildBaseData()
     {
