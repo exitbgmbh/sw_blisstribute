@@ -534,6 +534,47 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 ->setName('blisstribute-api-password')
                 ->setLabel('API Passwort')
                 ->setDescription('API-Passwort für Ihren Blisstribute-Mandanten');
+
+            // TODO: CHANGE QUERY NAME...
+            $this->get('db')->query(
+                   "INSERT IGNORE INTO s_core_paymentmeans_attributes (blisstribute_payment_code, paymentmeanID, blisstribute_payment_is_payed)
+                    SELECT
+                    CASE mapping_class_name
+                        WHEN 'WirecardCP' THEN 'wirecardCP'
+                        WHEN 'VrPayCC' THEN 'vrPayCC'
+                        WHEN 'Sofort' THEN 'sofort'
+                        WHEN 'SelfcollectorCashEc' THEN 'cash'
+                        WHEN 'SelfcollectorCashCreditCard' THEN 'cashCreditCard'
+                        WHEN 'SelfcollectorCash' THEN 'cash'
+                        WHEN 'PrePayment' THEN 'prePayment'
+                        WHEN 'PayPalPlus' THEN 'paypalPlus'
+                        WHEN 'PayPal' THEN 'paypal'
+                        WHEN 'PayOneELV' THEN 'payoneELV'
+                        WHEN 'PayOneCC' THEN 'payone'
+                        WHEN 'PayolutionInstallment' THEN 'payolutionInstallment'
+                        WHEN 'PayolutionELV' THEN 'payolutionELV'
+                        WHEN 'Payolution' THEN 'payolution'
+                        WHEN 'Marketplace' THEN 'marketplace'
+                        WHEN 'KlarnaSofort' THEN 'klarnaSofort'
+                        WHEN 'KlarnaRest' THEN 'klarnaRest'
+                        WHEN 'Klarna' THEN 'klarna'
+                        WHEN 'HeidelpaySofort' THEN 'heidelpaySofort'
+                        WHEN 'HeidelpayPostFinance' THEN 'heidelpayPostFinance'
+                        WHEN 'HeidelpayIdeal' THEN 'heidelpayIdeal'
+                        WHEN 'HeidelpayCreditCard' THEN 'heidelpayCC'
+                        WHEN 'Klarna' THEN 'klarna'
+                        WHEN 'DebitAdvice' THEN 'debitAdvice'
+                        WHEN 'Dawanda' THEN 'dawanda'
+                        WHEN 'CashOnDelivery' THEN 'cod'
+                        WHEN 'Billsafe' THEN 'billSafe'
+                        WHEN 'Bill' THEN 'bill'
+                        WHEN 'AmazonPayments' THEN 'amazonPayments'
+                        WHEN 'Amazon' THEN 'amazon'
+                        WHEN 'AfterPay' THEN 'afterPay'
+                END AS blisstribute_payment_code, s_core_paymentmeans_id, flag_payed FROM s_plugin_blisstribute_payment"
+            );
+
+            $this->get('db')->query("DROP TABLE IF EXISTS s_plugin_blisstribute_payment");
         }
 
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
