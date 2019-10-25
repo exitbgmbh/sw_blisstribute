@@ -1039,7 +1039,6 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             $modelManager->getClassMetadata('Shopware\CustomModels\Blisstribute\BlisstributeArticleType'),
             $modelManager->getClassMetadata('Shopware\CustomModels\Blisstribute\TaskLock'),
             $modelManager->getClassMetadata('Shopware\CustomModels\Blisstribute\BlisstributeOrder'),
-            $modelManager->getClassMetadata('Shopware\CustomModels\Blisstribute\BlisstributePayment'),
             $modelManager->getClassMetadata('Shopware\CustomModels\Blisstribute\BlisstributeShippingRequest'),
             $modelManager->getClassMetadata('Shopware\CustomModels\Blisstribute\BlisstributeShippingRequestItems'),
             $modelManager->getClassMetadata('Shopware\CustomModels\Blisstribute\BlisstributeCoupon'),
@@ -1760,22 +1759,12 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
         ]);
 
         $this->createMenuItem([
-            'label' => 'Zahlarten',
-            'controller' => 'BlisstributePaymentMapping',
-            'class' => 'sprite-credit-cards settings--payment-methods',
-            'action' => 'Index',
-            'active' => 1,
-            'position' => 1,
-            'parent' => $mappingItem
-        ]);
-
-        $this->createMenuItem([
             'label' => 'Wertgutscheine',
             'controller' => 'BlisstributeCouponMapping',
             'class' => 'sprite-money--pencil',
             'action' => 'Index',
             'active' => 1,
-            'position' => 2,
+            'position' => 1,
             'parent' => $mappingItem,
         ]);
     }
