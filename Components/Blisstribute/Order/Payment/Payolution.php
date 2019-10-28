@@ -5,6 +5,7 @@ class Shopware_Components_Blisstribute_Order_Payment_Payolution
 {
     /**
      * @inheritdoc
+     * @throws Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException
      */
     protected function getAdditionalPaymentInformation()
     {

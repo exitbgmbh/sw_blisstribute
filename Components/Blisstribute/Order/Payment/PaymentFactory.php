@@ -2,6 +2,13 @@
 
 use Shopware\Models\Order\Order;
 
+require_once __DIR__ . '/Payment.php';
+require_once __DIR__ . '/AmazonPayments.php';
+require_once __DIR__ . '/DebitAdvice.php';
+require_once __DIR__ . '/Heidelpay.php';
+require_once __DIR__ . '/Payolution.php';
+require_once __DIR__ . '/PayOne.php';
+
 class Shopware_Components_Blisstribute_Order_Payment_PaymentFactory
 {
     /**

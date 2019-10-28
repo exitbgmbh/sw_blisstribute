@@ -6,6 +6,7 @@ require_once __DIR__ . '/../Exception/ValidationMappingException.php';
 require_once __DIR__ . '/../Exception/OrderPaymentMappingException.php';
 require_once __DIR__ . '/../Exception/OrderShipmentMappingException.php';
 require_once __DIR__ . '/../Domain/LoggerTrait.php';
+require_once __DIR__ . '/Payment/PaymentFactory.php';
 
 use Shopware\Models\Order\Detail;
 use Shopware\Models\Article\Article;
