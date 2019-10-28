@@ -3,14 +3,6 @@
 use Shopware\Models\Order\Order;
 use Shopware\Models\Order\Detail;
 
-/**
- * abstract payment mapping
- *
- * @author    Julian Engler
- * @package   Shopware_Components_Blisstribute_Order_Payment_Abstract
- * @copyright Copyright (c) 2016
- * @since     1.0.0
- */
 class Shopware_Components_Blisstribute_Order_Payment_Payment
 {
     /**

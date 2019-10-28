@@ -1,13 +1,5 @@
 <?php
 
-/**
- * payolution bill payment implementation
- *
- * @author    Julian Engler
- * @package   Shopware\Components\Blisstribute\Order\Payment
- * @copyright Copyright (c) 2016
- * @since     1.0.0
- */
 class Shopware_Components_Blisstribute_Order_Payment_Payolution
     extends Shopware_Components_Blisstribute_Order_Payment_Payment
 {
