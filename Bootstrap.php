@@ -7,7 +7,6 @@ require_once __DIR__ . '/Components/Blisstribute/Command/ArticleExport.php';
 require_once __DIR__ . '/Components/Blisstribute/Article/Sync.php';
 require_once __DIR__ . '/Components/Blisstribute/Order/Sync.php';
 
-use \Shopware\CustomModels\Blisstribute\BlisstributeCoupon;
 use \Shopware\CustomModels\Blisstribute\BlisstributeOrder;
 use Doctrine\Common\Collections\ArrayCollection;
 use Shopware\ExitBBlisstribute\Subscribers\ControllerSubscriber;
@@ -712,6 +711,12 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             'supportText' => 'Bestellungen mit dieser Zahlart werden mit dem Status "bezahlt" übermittelt.'
         ]);
 
+        $crud->update('s_emarketing_vouchers_attributes', 'blisstribute_voucher_is_money_voucher', 'boolean', [
+            'custom' => 1,
+            'displayInBackend' => true,
+            'label' => 'VHS - Ist Wertgutschein?'
+        ]);
+
         $metaDataCache = Shopware()->Models()->getConfiguration()->getMetadataCacheImpl();
         $metaDataCache->deleteAll();
         Shopware()->Models()->generateAttributeModels(['s_articles_attributes', 's_categories_attributes', 's_order_details_attributes', 's_order_basket_attributes', 's_premium_dispatch_attributes']);
@@ -835,10 +840,8 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
 
             /** @var \Shopware\Models\Voucher\Voucher $voucher */
             foreach ($vouchers as $voucher) {
-                $blisstributeCoupon = new BlisstributeCoupon();
-                $blisstributeCoupon->setVoucher($voucher)->setIsMoneyVoucher(true);
-
-                $modelManager->persist($blisstributeCoupon);
+                $voucher->getAttribute()->setBlisstributeVoucherIsMoneyVoucher(true);
+                $modelManager->persist($voucher);
             }
 
             $modelManager->flush();
@@ -1096,7 +1099,6 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             $modelManager->getClassMetadata('Shopware\CustomModels\Blisstribute\BlisstributeOrder'),
             $modelManager->getClassMetadata('Shopware\CustomModels\Blisstribute\BlisstributeShippingRequest'),
             $modelManager->getClassMetadata('Shopware\CustomModels\Blisstribute\BlisstributeShippingRequestItems'),
-            $modelManager->getClassMetadata('Shopware\CustomModels\Blisstribute\BlisstributeCoupon'),
         ];
 
         return $classMetadataCollection;
@@ -1797,27 +1799,6 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             'active' => 1,
             'position' => $position,
             'parent' => $parent
-        ]);
-
-        $position += 1;
-        $mappingItem = $this->createMenuItem([
-            'label' => 'Blisstribute Mapping',
-            'controller' => '',
-            'class' => 'sprite-inbox',
-            'action' => '',
-            'active' => 1,
-            'position' => $position,
-            'parent' => $parent
-        ]);
-
-        $this->createMenuItem([
-            'label' => 'Wertgutscheine',
-            'controller' => 'BlisstributeCouponMapping',
-            'class' => 'sprite-money--pencil',
-            'action' => 'Index',
-            'active' => 1,
-            'position' => 1,
-            'parent' => $mappingItem,
         ]);
     }
 }
