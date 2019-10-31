@@ -896,8 +896,6 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
      */
     public function applyVouchers($articleDataCollection, $excludedVoucherIds = [])
     {
-        $couponMappingRepository = $this->getCouponMappingRepository();
-
         $vouchersData = [];
 
         // check if plugin CoeExcludeProducerOnVoucher is installed
@@ -913,8 +911,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         ]);
 
         foreach ($this->voucherCollection as $currentVoucher) {
-            $couponMapping = $couponMappingRepository->findByCoupon($currentVoucher->getId());
-            if ($couponMapping != null && $couponMapping->getIsMoneyVoucher()) {
+            if ($currentVoucher->getAttribute()->getBlisstributeVoucherIsMoneyVoucher()) {
                 continue;
             }
 
@@ -957,8 +954,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
             $price = $product['price'];
 
             foreach ($this->voucherCollection as $currentVoucher) {
-                $couponMapping = $couponMappingRepository->findByCoupon($currentVoucher->getId());
-                if ($couponMapping != null && $couponMapping->getIsMoneyVoucher()) {
+                if ($currentVoucher->getAttribute()->getBlisstributeVoucherIsMoneyVoucher()) {
                     continue;
                 }
 
@@ -1035,7 +1031,6 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
 
         /** @var VoucherRepository $voucherRepository */
         $voucherRepository = Shopware()->Models()->getRepository('Shopware\Models\Voucher\Voucher');
-        $couponMappingRepository = $this->getCouponMappingRepository();
 
         /** @var Detail $currentOrderLine */
         foreach ($this->getModelEntity()->getOrder()->getDetails() as $currentOrderLine) {
@@ -1072,12 +1067,11 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                 /** @var $voucher Voucher */
                 $this->voucherCollection[] = $voucher;
 
-                $couponMapping = $couponMappingRepository->findByCoupon($voucher);
-                if ($couponMapping != null && $couponMapping->getIsMoneyVoucher()) {
+                if ($voucher->getAttribute()->getBlisstributeVoucherIsMoneyVoucher()) {
                     $this->logDebug(sprintf(
                         'order line id %s / is money voucher! %s',
                         $currentOrderLine->getId(),
-                        $couponMapping->getId()
+                        $voucher->getId()
                     ));
 
                     continue;
@@ -1271,14 +1265,6 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                 }
             }
 
-            $couponMappingRepository = $this->getCouponMappingRepository();
-            $couponMapping           = $couponMappingRepository->findByCoupon($currentVoucher->getId());
-
-            $isMoneyVoucher = false;
-            if ($couponMapping != null && $couponMapping->getIsMoneyVoucher()) {
-                $isMoneyVoucher = true;
-            }
-
             if ($currentVoucher->getModus() == 1) {
                 $voucherCode = $currentVoucher->getOrderCode();
             } else {
@@ -1289,7 +1275,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                 'code'               => $voucherCode,
                 'discount'           => round($voucherDiscount, 4),
                 'discountPercentage' => $voucherPercentage,
-                'isMoneyVoucher'     => $isMoneyVoucher,
+                'isMoneyVoucher'     => $currentVoucher->getAttribute()->getBlisstributeVoucherIsMoneyVoucher();,
             ];
         }
 
