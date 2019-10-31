@@ -333,47 +333,6 @@ class ModelSubscriber implements SubscriberInterface
     }
 
     /**
-     * @param \Enlight_Event_EventArgs $eventArgs
-     *
-     * @return void
-     */
-    public function postPersistVoucher(\Enlight_Event_EventArgs $eventArgs)
-    {
-        $modelManager = $this->container->get('models');
-
-        /** @var \Shopware\Models\Voucher\Voucher $voucher */
-        $voucher = $eventArgs->get('entity');
-
-        $blisstributeCoupon = new \Shopware\CustomModels\Blisstribute\BlisstributeCoupon();
-        $blisstributeCoupon->setVoucher($voucher)->setIsMoneyVoucher(false);
-
-        $modelManager->persist($blisstributeCoupon);
-        $modelManager->flush();
-    }
-
-    /**
-     * @param \Enlight_Event_EventArgs $eventArgs
-     *
-     * @return void
-     */
-    public function preRemoveVoucher(\Enlight_Event_EventArgs $eventArgs)
-    {
-        $modelManager = $this->container->get('models');
-
-        /** @var \Shopware\Models\Voucher\Voucher $voucher */
-        $voucher = $eventArgs->get('entity');
-
-        $repository = $modelManager->getRepository('\Shopware\CustomModels\Blisstribute\BlisstributeCoupon');
-        $blisstributeCoupon = $repository->findByCoupon($voucher->getId());
-        if ($blisstributeCoupon === null) {
-            return;
-        }
-
-        $modelManager->remove($blisstributeCoupon);
-        $modelManager->flush();
-    }
-
-    /**
      * blisstribute order event fired before db insert
      *
      * @param \Enlight_Event_EventArgs $eventArgs
