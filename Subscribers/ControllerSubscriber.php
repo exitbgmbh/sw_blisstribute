@@ -32,7 +32,6 @@ class ControllerSubscriber implements SubscriberInterface
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_BlisstributeOrder' => 'getOrderController',
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_BlisstributeCore' => 'getCoreController',
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_BlisstributeOrderSyncCron' => 'getOrderSyncCronController',
-            'Enlight_Controller_Dispatcher_ControllerPath_Backend_BlisstributeCouponMapping' => 'getCouponMappingController',
 
             // api controllers
             'Enlight_Controller_Dispatcher_ControllerPath_Api_Btorders' => 'getBtordersApiController',
@@ -140,19 +139,6 @@ class ControllerSubscriber implements SubscriberInterface
     {
         $this->registerDirs();
         return __DIR__ . '/../Controllers/Backend/BlisstributeOrderSyncCron.php';
-    }
-
-    /**
-     * return payment mapping controller path
-     *
-     * @param \Enlight_Event_EventArgs $eventArgs
-     *
-     * @return string
-     */
-    public function getCouponMappingController(\Enlight_Event_EventArgs $eventArgs)
-    {
-        $this->registerDirs();
-        return __DIR__ . '/../Controllers/Backend/BlisstributeCouponMapping.php';
     }
 
     /**

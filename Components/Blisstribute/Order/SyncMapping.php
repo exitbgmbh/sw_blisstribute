@@ -94,16 +94,6 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
     }
 
     /**
-     * return blisstribute coupon mapping database repository
-     *
-     * @return \Shopware\CustomModels\Blisstribute\BlisstributeCouponRepository
-     */
-    protected function getCouponMappingRepository()
-    {
-        return Shopware()->Models()->getRepository('Shopware\CustomModels\Blisstribute\BlisstributeCoupon');
-    }
-
-    /**
      * return shopware plugin repository
      *
      * @return \Doctrine\ORM\EntityRepository|\Shopware\Models\Plugin\Plugin
