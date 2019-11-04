@@ -491,7 +491,7 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             $this->get('db')->query("DROP TABLE IF EXISTS s_plugin_blisstribute_shipment");
         }
 
-        if (version_compare($version, '1.1.0', '<')) {
+        if (version_compare($version, '1.0.4', '<')) {
             $this->Form()->removeElement('blisstribute-soap-host');
 
             $this
