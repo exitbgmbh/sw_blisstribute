@@ -132,7 +132,7 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
         $releaseDate = $articleDetail->getReleaseDate() ?? false;
 
         if (!$releaseDate) {
-            return null;
+            return date('Y-m-d');
         }
 
         return $releaseDate->format('Y-m-d');
@@ -146,11 +146,6 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
     private function getIdentifications(Detail $articleDetail)
     {
         return [
-            [
-                'identificationType' => 'external-key',
-                'identification'     => $this->getArticleVhsNumber($articleDetail),
-            ],
-
             [
                 'identificationType' => 'article_number',
                 'identification'     => $articleDetail->getNumber(),
