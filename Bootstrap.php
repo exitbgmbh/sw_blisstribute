@@ -534,9 +534,8 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 ->setLabel('API Passwort')
                 ->setDescription('API-Passwort für Ihren Blisstribute-Mandanten');
 
-            // TODO: CHANGE QUERY NAME...
             $this->get('db')->query(
-                   "INSERT IGNORE INTO s_core_paymentmeans_attributes (blisstribute_payment_code, paymentmeanID, blisstribute_payment_is_payed)
+                   "INSERT INTO s_core_paymentmeans_attributes (blisstribute_payment_code, paymentmeanID, blisstribute_payment_is_payed)
                     SELECT
                     CASE mapping_class_name
                         WHEN 'WirecardCP' THEN 'wirecardCP'
@@ -570,10 +569,20 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                         WHEN 'AmazonPayments' THEN 'amazonPayments'
                         WHEN 'Amazon' THEN 'amazon'
                         WHEN 'AfterPay' THEN 'afterPay'
-                END AS blisstribute_payment_code, s_core_paymentmeans_id, flag_payed FROM s_plugin_blisstribute_payment"
-            );
+                END AS ext_payment_code, s_core_paymentmeans_id, flag_payed FROM s_plugin_blisstribute_payment
+                ON DUPLICATE KEY UPDATE    
+	                s_core_paymentmeans_attributes.blisstribute_payment_code = values(s_core_paymentmeans_attributes.blisstribute_payment_code), s_core_paymentmeans_attributes.blisstribute_payment_is_payed = values(s_core_paymentmeans_attributes.blisstribute_payment_is_payed)
+            ");
 
             $this->get('db')->query("DROP TABLE IF EXISTS s_plugin_blisstribute_payment");
+
+            $this->get('db')->query(
+                "INSERT INTO s_emarketing_vouchers_attributes (id, voucherID, blisstribute_voucher_is_money_voucher)
+                    SELECT id, s_voucher_id, flag_money_voucher FROM s_plugin_blisstribute_coupon
+            ");
+
+            // Vouchers
+            $this->get('db')->query("DROP TABLE IF EXISTS s_plugin_blisstribute_coupon");
         }
 
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
