@@ -312,6 +312,19 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
             $shippingTotal += round($order->getAttribute()->getNetiEasyCouponShippingCostReduction(), 2);
         }
 
+        $orderHoldLimit = $this->getConfig()['blisstribute-order-hold-limit'];
+        if ($orderHoldLimit > 0 && $orderHoldLimit <= $order->getInvoiceAmount()) {
+            $this->logDebug(
+                sprintf(
+                    'orderSyncMapping::blisstribute hold order enabled due to order total "%F" limit exceeded "%F"',
+                    $order->getInvoiceAmount(),
+                    $orderHoldLimit
+                )
+            );
+
+            $orderHold = true;
+        }
+
         return [
             'number'         => $order->getNumber(),
             'date'           => $order->getOrderTime()->format('Y-m-d H:i:s'),

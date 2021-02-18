@@ -566,6 +566,19 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             $this->get('db')->query("ALTER TABLE s_plugin_blisstribute_payment ADD COLUMN payment_type_code varchar(255)");
         }
 
+        if (version_compare($version, '1.3.16', '<')) {
+            $form->setElement(
+                'number',
+                'blisstribute-order-hold-limit',
+                [
+                    'label' => 'Bestellung ab Bestellwert X anhalten',
+                    'description' => 'foo bar baz',
+                    'value' => 0,
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                ]
+            );
+        }
+
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
     }
 
@@ -1737,6 +1750,17 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 'description' => 'Wenn aktiviert, werden alle Bestellung aus dem aktuellen Shop als B2B übertragen.',
                 'value' => 0,
                 'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
+            ]
+        );
+
+        $form->setElement(
+            'number',
+            'blisstribute-order-hold-limit',
+            [
+                'label' => 'Bestellung ab Bestellwert X anhalten',
+                'description' => 'Wenn der Bestellwert das konfigurierte Limit übertrifft, dann wird die Bestellung im Blisstribute angehalten.',
+                'value' => 0,
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
             ]
         );
     }
