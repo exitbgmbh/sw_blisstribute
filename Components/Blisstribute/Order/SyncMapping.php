@@ -313,7 +313,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         }
 
         $orderHoldLimit = $this->getConfig()['blisstribute-order-hold-limit'];
-        if ($orderHoldLimit <= $order->getInvoiceAmount()) {
+        if ($orderHoldLimit > 0 && $orderHoldLimit <= $order->getInvoiceAmount()) {
             $this->logDebug(
                 sprintf(
                     'orderSyncMapping::blisstribute hold order enabled due to order total "%F" limit exceeded "%F"',
