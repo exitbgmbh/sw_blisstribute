@@ -592,6 +592,19 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             );
         }
 
+        if (version_compare($version, '1.3.18', '<')) {
+            $form->setElement(
+                'text',
+                'blisstribute-order-hold-comma-separated-article-numbers',
+                [
+                    'label' => 'Bestellung anhalten, wenn Bestellung nur aus konfigurierten Artikelnummern besteht',
+                    'description' => 'Wenn konfiguriert, wird überprüft, ob die Bestellung ausschließlich aus den kommagetrennten Artikelnummern besteht und wenn ja, wird die Bestellung im Blisstribute angehalten.',
+                    'value' => '',
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                ]
+            );
+        }
+
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
     }
 
@@ -1779,6 +1792,17 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 'label' => 'Bestellung anhalten, wenn kompletter Rechnungsbetrage von einem Gutschein gedeckt wird',
                 'description' => 'Wenn aktiviert, werden alle Bestellungen, die komplett von einem oder mehreren Gutscheinen bezahlt wurden, im Blisstribute angehalten.',
                 'value' => 0,
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+            ]
+        );
+
+        $form->setElement(
+            'text',
+            'blisstribute-order-hold-comma-separated-article-numbers',
+            [
+                'label' => 'Bestellung anhalten, wenn Bestellung nur aus konfigurierten Artikelnummern besteht',
+                'description' => 'Wenn konfiguriert, wird überprüft, ob die Bestellung ausschließlich aus den kommagetrennten Artikelnummern besteht und wenn ja, wird die Bestellung im Blisstribute angehalten.',
+                'value' => '',
                 'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
             ]
         );

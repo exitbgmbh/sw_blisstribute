@@ -336,6 +336,23 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
             }
         }
 
+        $configuredArticleNumbersForOrderHold = $this->getConfig()['blisstribute-order-hold-comma-separated-article-numbers'];
+        if (!empty($configuredArticleNumbersForOrderHold)) {
+            $holdOrderDueToBoughtArticles = $this->_orderConsistsOnlyOutOfConfiguredOrderHoldArticles(
+                $order,
+                $configuredArticleNumbersForOrderHold
+            );
+
+            if ($holdOrderDueToBoughtArticles) {
+                $this->logDebug(
+                    'orderSyncMapping::blisstribute order hold enabled, because order consists only out of configured order hold articles'
+                );
+
+                $orderRemark[] = 'Angehalten, weil Bestellung nur aus Artikeln besteht, die die Bestellung anhalten sollen';
+                $orderHold = true;
+            }
+        }
+
         return [
             'number'         => $order->getNumber(),
             'date'           => $order->getOrderTime()->format('Y-m-d H:i:s'),
@@ -1520,5 +1537,32 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         $orderTotal = $itemsAmount + $discountAmount + $surchargeAmount + $order->getInvoiceShipping();
 
         return ($orderTotal - abs($voucherAmount)) <= 0;
+    }
+
+    /**
+     * @param Order $order
+     * @param string $commaSeparatedArticles
+     * @return bool
+     */
+    private function _orderConsistsOnlyOutOfConfiguredOrderHoldArticles(
+        Order $order,
+        string $commaSeparatedArticles
+    ): bool {
+        $articles = array_map('trim', explode(',', $commaSeparatedArticles));
+
+        $holdOrderDueToBoughtArticles = true;
+        /** @var $detail Detail */
+        foreach ($order->getDetails() as $detail) {
+            if ($detail->getMode() !== 0) {
+                continue;
+            }
+
+            if (!in_array($detail->getArticleNumber(), $articles)) {
+                $holdOrderDueToBoughtArticles = false;
+                break;
+            }
+        }
+
+        return $holdOrderDueToBoughtArticles;
     }
 }

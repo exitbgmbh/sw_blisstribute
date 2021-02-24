@@ -8,11 +8,12 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.3.17",
+    "currentVersion": "1.3.18",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.3.18": "add possibility to hold orders if order only consists out of configured comma separated article numbers",
             "1.3.17": "add possibility to hold orders if voucher pays the whole bill",
             "1.3.16": "add possibility to hold orders if configured total limit exceeds order total",
             "1.3.15": "add possibility to overwrite blisstribute payment type code in payment mapping",
