@@ -322,7 +322,18 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                 )
             );
 
+            $orderRemark[] = 'Bestellung angehalten, weil Rechnungssumme konfiguriertes Limit übertrifft.';
             $orderHold = true;
+        }
+
+        $orderHoldIfVoucherCoversInvoice = $this->getConfig()['blisstribute-order-hold-if-whole-order-is-payed-with-voucher'];
+        if ($orderHoldIfVoucherCoversInvoice) {
+            if ($this->coversVoucherOrderTotal($order)) {
+                $this->logDebug('orderSyncMapping::blisstribute hold order enabled, because voucher covers the whole invoice amount');
+
+                $orderHold = true;
+                $orderRemark[] = 'Gutscheinbestellung';
+            }
         }
 
         return [
@@ -1463,5 +1474,51 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         }
 
         return $voucherData;
+    }
+
+    /**
+     * @param Order $order
+     * @return bool
+     */
+    private function coversVoucherOrderTotal(Order $order): bool
+    {
+        $itemsAmount = 0;
+        $voucherAmount = 0;
+        $discountAmount = 0;
+        $surchargeAmount = 0;
+
+        /** @var $detail Detail */
+        foreach ($order->getDetails() as $detail) {
+            # product
+            if ($detail->getMode() === 0) {
+                $itemsAmount += ($detail->getQuantity() * $detail->getPrice());
+                continue;
+            }
+
+            # $detail->getMode() === 1 would mean bounty products that the customer would get for free, if some conditions are met
+
+            # voucher
+            if ($detail->getMode() === 2) {
+                $voucherAmount += $detail->getPrice();
+            }
+
+            # discounts like (global) cart discounts or customer specific discounts
+            if ($detail->getMode() === 3) {
+                $discountAmount = $detail->getPrice();
+            }
+
+            # surcharges like payment
+            if ($detail->getMode() === 4) {
+                $surchargeAmount += $detail->getPrice();
+            }
+        }
+
+        if ($voucherAmount === 0) {
+            return false;
+        }
+
+        $orderTotal = $itemsAmount + $discountAmount + $surchargeAmount + $order->getInvoiceShipping();
+
+        return ($orderTotal - abs($voucherAmount)) <= 0;
     }
 }

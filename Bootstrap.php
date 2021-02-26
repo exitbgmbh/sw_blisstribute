@@ -572,7 +572,20 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 'blisstribute-order-hold-limit',
                 [
                     'label' => 'Bestellung ab Bestellwert X anhalten',
-                    'description' => 'foo bar baz',
+                    'description' => 'Wenn der Bestellwert das konfigurierte Limit übertrifft, dann wird die Bestellung im Blisstribute angehalten.',
+                    'value' => 0,
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                ]
+            );
+        }
+
+        if (version_compare($version, '1.3.17', '<')) {
+            $form->setElement(
+                'checkbox',
+                'blisstribute-order-hold-if-whole-order-is-payed-with-voucher',
+                [
+                    'label' => 'Bestellung anhalten, wenn kompletter Rechnungsbetrage von einem Gutschein gedeckt wird',
+                    'description' => 'Wenn aktiviert, werden alle Bestellungen, die komplett von einem oder mehreren Gutscheinen bezahlt wurden, im Blisstribute angehalten.',
                     'value' => 0,
                     'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
                 ]
@@ -1759,6 +1772,17 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             [
                 'label' => 'Bestellung ab Bestellwert X anhalten',
                 'description' => 'Wenn der Bestellwert das konfigurierte Limit übertrifft, dann wird die Bestellung im Blisstribute angehalten.',
+                'value' => 0,
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+            ]
+        );
+
+        $form->setElement(
+            'checkbox',
+            'blisstribute-order-hold-if-whole-order-is-payed-with-voucher',
+            [
+                'label' => 'Bestellung anhalten, wenn kompletter Rechnungsbetrage von einem Gutschein gedeckt wird',
+                'description' => 'Wenn aktiviert, werden alle Bestellungen, die komplett von einem oder mehreren Gutscheinen bezahlt wurden, im Blisstribute angehalten.',
                 'value' => 0,
                 'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
             ]
