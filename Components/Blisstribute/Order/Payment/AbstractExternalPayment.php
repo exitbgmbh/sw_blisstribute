@@ -19,7 +19,6 @@ abstract class Shopware_Components_Blisstribute_Order_Payment_AbstractExternalPa
     protected function checkPaymentStatus()
     {
         $status = parent::checkPaymentStatus();
-
         if (trim($this->order->getTransactionId()) == '') {
             throw new Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException('no transaction id given');
         }
