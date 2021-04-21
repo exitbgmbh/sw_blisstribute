@@ -353,6 +353,13 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
             }
         }
 
+        $addInternalCommentToOrderRemark = $this->getConfig()['blisstribute-add-shopware-internal-comment-to-order-remark'];
+        if ($addInternalCommentToOrderRemark && !empty($order->getInternalComment())) {
+            $this->logDebug('orderSyncMapping::blisstribute add shopware internal comment to order remark');
+
+            array_unshift($orderRemark, $order->getInternalComment());
+        }
+
         return [
             'number'         => $order->getNumber(),
             'date'           => $order->getOrderTime()->format('Y-m-d H:i:s'),

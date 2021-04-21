@@ -605,6 +605,19 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             );
         }
 
+        if (version_compare($version, '1.3.20', '<')) {
+            $form->setElement(
+                'checkbox',
+                'blisstribute-add-shopware-internal-comment-to-order-remark',
+                [
+                    'label' => 'Interner Kommentar in das Bemerkungsfeld der Bestellung schreiben',
+                    'description' => 'Wenn diese Option aktiviert ist, wird der interne Kommentar von Shopware an den Anfang des Bemerkungsfeldes der Bestellung geschrieben.',
+                    'value' => 0,
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                ]
+            );
+        }
+
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
     }
 
@@ -1808,6 +1821,17 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 'label' => 'Bestellung anhalten, wenn Bestellung nur aus konfigurierten Artikelnummern besteht',
                 'description' => 'Wenn konfiguriert, wird überprüft, ob die Bestellung ausschließlich aus den kommagetrennten Artikelnummern besteht und wenn ja, wird die Bestellung im Blisstribute angehalten.',
                 'value' => '',
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+            ]
+        );
+
+        $form->setElement(
+            'checkbox',
+            'blisstribute-add-shopware-internal-comment-to-order-remark',
+            [
+                'label' => 'Interner Kommentar in das Bemerkungsfeld der Bestellung schreiben',
+                'description' => 'Wenn diese Option aktiviert ist, wird der interne Kommentar von Shopware an den Anfang des Bemerkungsfeldes der Bestellung geschrieben.',
+                'value' => 0,
                 'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
             ]
         );
