@@ -47,6 +47,7 @@ Ext.define('Shopware.apps.BlisstributePaymentMapping.view.list.Payment', {
         classNameAfterPay: '{s name=blisstribute/paymentAfterPay}AfterPay{/s}',
         classNameMollie: '{s name=blisstribute/paymentMollie}Mollie{/s}',
         classNameRatePay: '{s name=blisstribute/paymentRatePay}RatePay{/s}',
+        classNameDatatrans: '{s name=blisstribute/paymentDatatrans}Datatrans{/s}',
     },
 
     configure: function() {
@@ -182,6 +183,9 @@ Ext.define('Shopware.apps.BlisstributePaymentMapping.view.list.Payment', {
                             case 'RatePay':
                                 return me.snippets.classNameRatePay;
 
+                            case 'Datatrans':
+                                return me.snippets.classNameDatatrans;
+
                             default:
                                 return me.snippets.classNameNone;
                         }
@@ -221,7 +225,8 @@ Ext.define('Shopware.apps.BlisstributePaymentMapping.view.list.Payment', {
                                 ['Billsafe', me.snippets.classNameBillsafe],
                                 ['AfterPay', me.snippets.classNameAfterPay],
                                 ['Mollie', me.snippets.classNameMollie],
-                                ['RatePay', me.snippets.classNameRatePay]
+                                ['RatePay', me.snippets.classNameRatePay],
+                                ['Datatrans', me.snippets.classNameDatatrans]
                             ]
                         }),
                         allowBlank: false,
