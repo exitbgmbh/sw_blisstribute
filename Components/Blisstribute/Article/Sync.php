@@ -57,8 +57,10 @@ class Shopware_Components_Blisstribute_Article_Sync extends Shopware_Components_
             $articleRepository = $this->modelManager->getRepository('Shopware\CustomModels\Blisstribute\BlisstributeArticle');
             $articleCollection = $articleRepository->findTransferableArticles($startDate);
 
+            $processedCounter = 0;
             $status = true;
-            while (count($articleCollection) > 0) {
+            while (count($articleCollection) > 0 && $processedCounter <= 5000) {
+                $processedCounter += count($articleCollection);
                 foreach ($articleCollection as $currentArticle) {
                     $this->logMessage('start worker with article::' . $currentArticle->getId(), __FUNCTION__, Logger::INFO);
 
@@ -138,7 +140,6 @@ class Shopware_Components_Blisstribute_Article_Sync extends Shopware_Components_
                 }
 
                 $this->modelManager->flush();
-
                 $articleCollection = $articleRepository->findTransferableArticles($startDate);
             }
 

@@ -618,6 +618,19 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             );
         }
 
+        if (version_compare($version, '1.3.22', '<')) {
+            $form->setElement(
+                'checkbox',
+                'blisstribute-article-sync-check-for-change-date',
+                [
+                    'label' => 'Artikel-Änderungsdatum auswerten',
+                    'description' => 'Wenn aktivert, wird vor der Synchronisation das Modifizierungsdatum der Artikel ausgewertet.',
+                    'value' => 0,
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
+                ]
+            );
+        }
+
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
     }
 
@@ -811,11 +824,13 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
         $config = $container->get('shopware.plugin.cached_config_reader')->getByPluginName('ExitBBlisstribute', $shop);
         $pluginConfig = new Enlight_Config($config);
 
-        $this->logDebug('onRunBlisstributeArticleSyncCron::repair trigger sync flag started');
-        $sql = "UPDATE s_plugin_blisstribute_articles a INNER JOIN s_articles b ON a.s_article_id = b.id SET a.trigger_sync = 1 WHERE a.last_cron_at < b.changetime AND trigger_sync = 0";
-        $this->get('db')->query($sql);
-        $this->logDebug('onRunBlisstributeArticleSyncCron::repair trigger sync flag done');
-
+        // If the user disabled article synchronization, stop here.
+        if ($pluginConfig->get('blisstribute-article-sync-check-for-change-date')) {
+            $this->logDebug('onRunBlisstributeArticleSyncCron::repair trigger sync flag started');
+            $sql = "UPDATE s_plugin_blisstribute_articles a INNER JOIN s_articles b ON a.s_article_id = b.id SET a.trigger_sync = 1 WHERE a.last_cron_at < b.changetime AND trigger_sync = 0";
+            $this->get('db')->query($sql);
+            $this->logDebug('onRunBlisstributeArticleSyncCron::repair trigger sync flag done');
+        }
         // If the user disabled article synchronization, stop here.
         if (!$pluginConfig->get('blisstribute-article-sync-enabled')) {
             $this->_log(date('r') . ' - BLISSTRIBUTE article sync is disabled' . PHP_EOL);
@@ -1721,6 +1736,18 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 'label' => 'Artikel synchronisieren',
                 'description' => 'Wenn deaktiviert werden keine Artikel zwischen diesem Shop und Blisstribute synchronisiert.',
                 'value' => 1,
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
+            ]
+        );
+
+        // Add option to disable article sync.
+        $form->setElement(
+            'checkbox',
+            'blisstribute-article-sync-check-for-change-date',
+            [
+                'label' => 'Artikel-Änderungsdatum auswerten',
+                'description' => 'Wenn aktivert, wird vor der Synchronisation das Modifizierungsdatum der Artikel ausgewertet.',
+                'value' => 0,
                 'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
             ]
         );
