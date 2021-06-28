@@ -1343,7 +1343,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
 
         // check if article is valid for voucher
         $restrictedArticles = explode(';', $voucher->getRestrictArticles());
-        if ($restrictDiscount && count($restrictedArticles) > 0 && !in_array($product['legacy']['articleNumber'], $restrictedArticles)) {
+        if ($restrictVoucher && count($restrictedArticles) > 0 && !in_array($product['legacy']['articleNumber'], $restrictedArticles)) {
             return true;
         }
 
