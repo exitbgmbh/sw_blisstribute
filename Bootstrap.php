@@ -915,7 +915,7 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             $this->logDebug('onRunBlisstributeOrderMappingCron::cleaning obsolete referenced orders done');
 
             $this->logDebug('onRunBlisstributeOrderMappingCron::creating new order references');
-            $sql = "SELECT id FROM s_order WHERE id NOT IN (SELECT s_order_id FROM s_plugin_blisstribute_orders) AND ordernumber != 0";
+            $sql = "SELECT id FROM s_order WHERE id NOT IN (SELECT s_order_id FROM s_plugin_blisstribute_orders) AND ordernumber != '0'";
             $modelManager = Shopware()->Container()->get('models');
             $orders = Shopware()->Container()->get('db')->fetchAll($sql);
             $date = new \DateTime();
