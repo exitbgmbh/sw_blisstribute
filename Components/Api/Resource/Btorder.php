@@ -65,7 +65,7 @@ class Btorder extends Resource
         } elseif (in_array($vhsOrderStatusId, array(40))) {
             $swOrderStatusId = Status::ORDER_STATE_COMPLETED;
         } elseif (in_array($vhsOrderStatusId, array(50))) {
-            $swOrderStatusId = Status::ORDER_STATE_CANCELLED;
+            $swOrderStatusId = Status::ORDER_STATE_CANCELLED_REJECTED;
             $params['paymentStatusId'] = Status::PAYMENT_STATE_RE_CREDITING;
         } elseif (in_array($vhsOrderStatusId,array(60,61,62))) {
             $swOrderStatusId = Status::ORDER_STATE_CANCELLED_REJECTED;
