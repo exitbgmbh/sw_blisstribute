@@ -914,7 +914,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
 
         if (!empty($product->getAttribute()->getBundlePackageId())) {
             $articleData['legacy']['bundlePackageId'] = $product->getAttribute()->getBundlePackageId();
-            $articleData['title'] = '(BUNDLE) ' . $articleData['title'];
+            $articleData['articleTitle'] = '(BUNDLE) ' . $articleData['articleTitle'];
         }
 
         return $articleData;
@@ -931,7 +931,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         $bundlePackageIds = [];
 
         foreach ($items as $item) {
-            if (empty($item['bundlePackageId'])) {
+            if (empty($item['legacy']['bundlePackageId'])) {
                 continue;
             }
 
@@ -955,7 +955,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                     continue;
                 }
 
-                $totalBundleAmount += round($item['priceAmount'], 4);
+                $totalBundleAmount += round($item['legacy']['originalPriceAmount'], 4);
             }
 
             foreach ($items as &$item) {
