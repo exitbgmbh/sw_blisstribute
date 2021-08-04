@@ -940,10 +940,8 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
             }
         }
 
-        if (!empty($bundlePackageIds) && empty($bundles)) {
-            throw new Shopware_Components_Blisstribute_Exception_ValidationMappingException(
-                'could not find bundle discount in order lines'
-            );
+        if (empty($bundlePackageIds) || empty($bundles)) {
+            return $items;
         }
 
         foreach ($bundlePackageIds as $key => $bundlePackageId) {
