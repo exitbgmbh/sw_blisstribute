@@ -1094,8 +1094,8 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                 if ($currentVoucher->getAttribute() != null) {
                     $coeExcludeSupplier = $currentVoucher->getAttribute()->getCoeExcludeSupplier();
 
-                    if (!empty($coeExcludeSupplier) {
-                        $coeExcludeSuppliers = array_filter(explode('|', $coeExcludeSupplier);
+                    if (!empty($coeExcludeSupplier)) {
+                        $coeExcludeSuppliers = array_filter(explode('|', $coeExcludeSupplier));
                     }
                 }
             }
