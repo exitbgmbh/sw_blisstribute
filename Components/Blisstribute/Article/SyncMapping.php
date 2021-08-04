@@ -618,9 +618,9 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
             if (!$this->isMainShopCategory($currentCategory, $mainShopCategories)) {
                 continue;
             }
-
-            $deepLevel = $currentCategory->getLevel();
+            
             $baseCategory = $currentCategory;
+            $deepLevel = $currentCategory->getLevel();
 
             if ($currentCategory->getId() == $seoCategoryId) {
                 break;
