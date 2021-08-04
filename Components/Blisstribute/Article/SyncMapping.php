@@ -366,7 +366,9 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
             }
         }
 
-        return $prices;
+        // Allow plugins to add prices
+        return Enlight()->Events()->filter('ExitBBlisstribute_ArticleSyncMapping_AfterGetPrices', $prices,
+            ['subject' => $this, 'articleDetail' => $articleDetail]);
     }
 
     /**
