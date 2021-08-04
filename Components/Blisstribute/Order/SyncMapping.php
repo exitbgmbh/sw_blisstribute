@@ -665,6 +665,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         }
 
         $promotions = [];
+        $bundles = [];
         $shopwareDiscountsAmount = 0;
 
         /** @var ArticleRepository $articleRepository */
@@ -696,6 +697,10 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                 }
             }
 
+            if ($mode == 10 && $price <= 0) {
+                $bundles[] = $orderDetail;
+            }
+
             if ($mode > 0) {
                 continue;
             }
@@ -724,15 +729,18 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                     'articleNumber'   => $orderDetail->getArticleNumber(),
                     'originalPrice'   => $price,
                     'originalPriceAmount' => round(($price * $quantity), 2),
+                    'bundlePackageId' => '',
                 ],
             ];
 
             $articleData = $this->applyCustomProducts($articleData, $orderDetail, $basketItems);
+            $articleData = $this->applyBundleProducts($articleData, $orderDetail);
             $articleData = $this->applyStaticAttributeData($articleData, $article);
 
             $items[] = $articleData;
         }
 
+        $items = $this->applyBundleDiscounts($items, $bundles);
         $items = $this->applyPromoDiscounts($items, $promotions, $shopwareDiscountsAmount);
 
         if (!$this->getConfig()['blisstribute-order-include-vatrate']) {
@@ -887,6 +895,86 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         return $articleData;
     }
 
+    /**
+     * @param array $articleData
+     * @param Shopware\Models\Order\Detail $product
+     * @return mixed
+     */
+    public function applyBundleProducts($articleData, $product)
+    {
+        // check if plugin SwagCustomProducts is installed
+        $plugin = $this->getPluginRepository()->findOneBy([
+            'name' => 'SwagBundle',
+            'active' => true
+        ]);
+
+        if (!$plugin) {
+            return $articleData;
+        }
+
+        if (!empty($product->getAttribute()->getBundlePackageId())) {
+            $articleData['legacy']['bundlePackageId'] = $product->getAttribute()->getBundlePackageId();
+            $articleData['title'] = '(BUNDLE) ' . $articleData['title'];
+        }
+
+        return $articleData;
+    }
+
+    /**
+     * @param $items
+     * @param $bundles
+     * @return mixed
+     * @throws NonUniqueResultException
+     */
+    public function applyBundleDiscounts($items, $bundles)
+    {
+        $bundlePackageIds = [];
+
+        foreach ($items as $item) {
+            if (empty($item['bundlePackageId'])) {
+                continue;
+            }
+
+            if (!in_array($item['legacy']['bundlePackageId'], $bundlePackageIds)) {
+                $bundlePackageIds[] = $item['legacy']['bundlePackageId'];
+            }
+        }
+
+        if (!empty($bundlePackageIds) && empty($bundles)) {
+            throw new Shopware_Components_Blisstribute_Exception_ValidationMappingException(
+                'could not find bundle discount in order lines'
+            );
+        }
+
+        foreach ($bundlePackageIds as $key => $bundlePackageId) {
+            $bundleDiscount = abs($bundles[$key]->getPrice());
+            $totalBundleAmount = 0;
+
+            foreach ($items as $item) {
+                if ($bundlePackageId != $item['legacy']['bundlePackageId']) {
+                    continue;
+                }
+
+                $totalBundleAmount += round($item['priceAmount'], 4);
+            }
+
+            foreach ($items as &$item) {
+                if ($bundlePackageId != $item['legacy']['bundlePackageId']) {
+                    continue;
+                }
+
+                $weight = $item['legacy']['originalPriceAmount'] / $totalBundleAmount;
+                $singleDiscount = abs($bundleDiscount * $weight) / $item['quantity'];
+
+                $item['discount']              += round($singleDiscount, 4);
+                $item['price']                 -= round($singleDiscount, 4);
+            }
+
+            unset($item);
+        }
+
+        return $items;
+    }
 
     /**
      * @param $items
