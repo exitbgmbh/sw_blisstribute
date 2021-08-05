@@ -78,7 +78,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
     /**
      * @return array
      */
-    protected function getConfig()
+    protected function getConfig($plugin = 'ExitBBlisstribute')
     {
         $shop = $this->getModelEntity()->getOrder()->getShop();
         if (!$shop || $shop == null) {
@@ -97,7 +97,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         }
 
         $this->logInfo('orderSyncMapping::getConfig::using shop ' . $shop->getId() . ' / ' . $shop->getName());
-        $config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName('ExitBBlisstribute', $shop);
+        $config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName($plugin, $shop);
         return $config;
     }
 
@@ -1200,9 +1200,23 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                 }
             }
 
+            // check if plugin SwagBundle is installed
+            $plugin = $this->getPluginRepository()->findOneBy([
+                'name' => 'SwagBundle',
+                'active' => true
+            ]);
+
+            $excludePercentalVoucherFromBundle = false;
+            if ($plugin) {
+                $pluginConfig = $this->getConfig('SwagBundle');
+
+                $excludePercentalVoucherFromBundle = ($pluginConfig['SwagBundleExcludeVoucher']) ? true : false;
+            }
+
             $vouchersData[$currentVoucher->getId()] = [
                 'coeExcludeSuppliers' => $coeExcludeSuppliers,
                 'coeReducedArticle' => $coeReducedArticle,
+                'excludePercentalVoucherFromBundle' => $excludePercentalVoucherFromBundle,
             ];
         }
 
@@ -1463,6 +1477,10 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                     return true;
                 }
             }
+        }
+
+        if (!empty($product['legacy']['bundlePackageId']) && $vouchersData[$voucherId]['excludePercentalVoucherFromBundle']) {
+            return true;
         }
 
         return false;
