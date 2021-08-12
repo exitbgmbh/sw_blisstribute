@@ -740,8 +740,8 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
             $items[] = $articleData;
         }
 
-        $items = $this->applyBundleDiscounts($items, $bundles);
         $items = $this->applyPromoDiscounts($items, $promotions, $shopwareDiscountsAmount);
+        $items = $this->applyBundleDiscounts($items, $bundles);
 
         if (!$this->getConfig()['blisstribute-order-include-vatrate']) {
             foreach ($items as &$item) {
@@ -1479,7 +1479,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
             }
         }
 
-        if (!empty($product['legacy']['bundlePackageId']) && $vouchersData[$voucherId]['excludePercentalVoucherFromBundle']) {
+        if ($voucher->getPercental() && !empty($product['legacy']['bundlePackageId']) && $vouchersData[$voucherId]['excludePercentalVoucherFromBundle']) {
             return true;
         }
 
