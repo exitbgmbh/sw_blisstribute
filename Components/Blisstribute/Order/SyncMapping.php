@@ -1364,7 +1364,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
             $customer = $this->getModelEntity()->getOrder()->getCustomer();
 
             if ($customer) {
-                $hasPseudoPrice = $this->container->get('db')->fetchOne("SELECT IFNULL(sap2.pseudoprice, sap.pseudoprice) AS pseudoprice FROM s_articles_details sad INNER JOIN s_articles_prices sap ON sad.id = sap.articleDetailsID AND sap.pricegroup = 'EK' AND ROUND(sap.pseudoprice, 2) > ROUND(sap.price, 2) LEFT JOIN s_articles_prices sap2 ON sad.id = sap2.articleDetailsID AND sap2.pricegroup = ? AND ROUND(sap2.pseudoprice, 2) > ROUND(sap2.price, 2) WHERE sad.ordernumber = ?", [$customer->getGroupKey(), $product['articleNumber']]);
+                $hasPseudoPrice = $this->container->get('db')->fetchOne("SELECT IFNULL(sap2.pseudoprice, sap.pseudoprice) AS pseudoprice FROM s_articles_details sad INNER JOIN s_articles_prices sap ON sad.id = sap.articleDetailsID AND sap.pricegroup = 'EK' AND ROUND(sap.pseudoprice, 2) > ROUND(sap.price, 2) LEFT JOIN s_articles_prices sap2 ON sad.id = sap2.articleDetailsID AND sap2.pricegroup = ? AND ROUND(sap2.pseudoprice, 2) > ROUND(sap2.price, 2) WHERE sad.ordernumber = ?", [$customer->getGroupKey(), $product['legacy']['articleNumber']]);
 
                 if ($hasPseudoPrice) {
                     return true;
