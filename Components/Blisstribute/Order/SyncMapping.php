@@ -862,16 +862,27 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                     $articleData['price'] += round($price, 6);
                 }
 
-
                 if ($configurationArticle->getAttribute()->getSwagCustomProductsMode() == 2) {
                     foreach ($templateCollection as $currentTemplate) {
                         if ($currentTemplate['id'] != $configurationArticle->getArticleId()) {
                             continue;
                         }
 
-                        $value = trim($currentConfigurationData[$currentTemplate['id']][0]);
-                        if ($value != '') {
-                            $orderLineConfiguration[] = ['key' => $currentTemplate['name'], 'value' => $value];
+                        $values = array_map('trim', $currentConfigurationData[$currentTemplate['id']]);
+
+                        foreach ($values as $value) {
+                            if (!empty($currentTemplate['values'])) {
+                                $key = array_search($value, array_column($currentTemplate['values'], 'id'));
+
+                                if ($key !== false) {
+                                    $valueData = $currentTemplate['values'][$key];
+                                    $value = trim($valueData['name']);
+                                }
+                            }
+
+                            if (!empty($value)) {
+                                $orderLineConfiguration[] = ['key' => $currentTemplate['name'], 'value' => $value];
+                            }
                         }
                     }
                 }
