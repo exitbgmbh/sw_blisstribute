@@ -860,6 +860,8 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
 
                 } else {
                     $articleData['price'] += round($price, 6);
+                    $articleData['legacy']['originalPrice'] = $articleData['price'];
+                    $articleData['legacy']['originalPriceAmount'] = round($articleData['price'] * $articleData['quantity'], 2);
                 }
 
                 if ($configurationArticle->getAttribute()->getSwagCustomProductsMode() == 2) {
