@@ -49,6 +49,7 @@ Ext.define('Shopware.apps.BlisstributePaymentMapping.view.list.Payment', {
         classNameMollie: '{s name=blisstribute/paymentMollie}Mollie{/s}',
         classNameRatePay: '{s name=blisstribute/paymentRatePay}RatePay{/s}',
         classNameDatatrans: '{s name=blisstribute/paymentDatatrans}Datatrans{/s}',
+        classNameAdyen: '{s name=blisstribute/paymentAdyen}Adyen{/s}',
     },
 
     configure: function() {
@@ -190,6 +191,9 @@ Ext.define('Shopware.apps.BlisstributePaymentMapping.view.list.Payment', {
                             case 'Datatrans':
                                 return me.snippets.classNameDatatrans;
 
+                            case 'Adyen':
+                                return me.snippets.classNameAdyen;
+
                             default:
                                 return me.snippets.classNameNone;
                         }
@@ -231,7 +235,8 @@ Ext.define('Shopware.apps.BlisstributePaymentMapping.view.list.Payment', {
                                 ['AfterPay', me.snippets.classNameAfterPay],
                                 ['Mollie', me.snippets.classNameMollie],
                                 ['RatePay', me.snippets.classNameRatePay],
-                                ['Datatrans', me.snippets.classNameDatatrans]
+                                ['Datatrans', me.snippets.classNameDatatrans],
+                                ['Adyen', me.snippets.classNameAdyen]
                             ]
                         }),
                         allowBlank: false,

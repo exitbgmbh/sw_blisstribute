@@ -8,11 +8,12 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.3.23",
+    "currentVersion": "1.3.24",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.3.24": "add support for adyen payments",
             "1.3.23": "use CANCELLED_REJECTED as cancellation state",
             "1.3.22": "add heidelpay / unzer REST payment type",
             "1.3.22": "add option to disable article sync update by modification date",
