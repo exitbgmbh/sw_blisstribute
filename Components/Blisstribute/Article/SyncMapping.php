@@ -162,6 +162,7 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
             $identifications[] = [
                 'identificationType' => 'article_number',
                 'identification'     => $articleNumber,
+                'isPreferred'        => true
             ];
         }
 
@@ -169,6 +170,7 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
             $identifications[] = [
                 'identificationType' => 'ean13',
                 'identification'     => $ean13,
+                'isPreferred'        => true
             ];
         }
 
@@ -176,6 +178,7 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
             $identifications[] = [
                 'identificationType' => 'manufacturer_article_number',
                 'identification'     => $manufacturerArticleNumber,
+                'isPreferred'        => true
             ];
         }
 

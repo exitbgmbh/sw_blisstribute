@@ -2,6 +2,7 @@
 
 use Shopware\Models\Order\Order;
 use Shopware\Models\Order\Detail;
+use Shopware\Models\Order\Status;
 use Shopware\CustomModels\Blisstribute\BlisstributePayment;
 
 /**
@@ -43,26 +44,30 @@ class Shopware_Components_Blisstribute_Order_Payment_Abstract
     {
         $this->order = $order;
         $this->payment = $payment;
-
-        $this->checkPaymentStatus();
     }
 
     /**
      * @return bool
-     *
-     * @throws Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException
-     *
-     * @throws \Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException
      */
     protected function checkPaymentStatus()
     {
-//        if ($this->payment->getIsPayed() && $this->order->getPaymentStatus()->getId() != 12) {
-//            throw new Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException(
-//                'payment status not cleared::manual review necessary::current status ' . $this->order->getPaymentStatus()->getId()
-//            );
-//        }
-
         return true;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isPaid()
+    {
+        if ($this->payment->getIsPayed()) {
+            if ($this->order->getPaymentStatus()->getId() == Status::PAYMENT_STATE_COMPLETELY_PAID) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -91,14 +96,15 @@ class Shopware_Components_Blisstribute_Order_Payment_Abstract
             $paymentTypeCode = $this->code;
         }
 
+        $isPaid = $this->isPaid();
         $payment = array(
             'total' => round($paymentCosts, 6),
             'code' => $paymentTypeCode,
-            'isPayed' => (bool)$this->payment->getIsPayed(),
+            'isPayed' => $isPaid,
             'totalIsNet' => false,
         );
 
-        if ($payment['isPayed']) {
+        if ($isPaid) {
             $payment['amountPayed'] = $this->order->getInvoiceAmount();
         }
 
