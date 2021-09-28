@@ -149,6 +149,31 @@ class ModelSubscriber implements SubscriberInterface
             $blisstributeArticle->setArticle($article);
         }
 
+        try {
+            $syncMapping = new \Shopware_Components_Blisstribute_Article_SyncMapping();
+            $syncMapping->setModelEntity($blisstributeArticle);
+            $articleData = $syncMapping->buildMapping();
+            $checksum = trim(sha1(json_encode($articleData)));
+
+            if ($checksum === $blisstributeArticle->getSyncHash()) {
+                \Shopware()->PluginLogger()->log(\Monolog\Logger::DEBUG, 'modelSubscriber::postUpdateArticle done - article not changed');
+
+                if ($blisstributeArticle->isTriggerSync()) {
+                    $blisstributeArticle->setTriggerSync(false);
+
+                    $modelManager->persist($blisstributeArticle);
+                    $modelManager->flush();
+
+                    \Shopware()->PluginLogger()->log(\Monolog\Logger::DEBUG, 'modelSubscriber::postUpdateArticle removed trigger sync since article hasnt changed');
+                }
+
+                return;
+            }
+        } catch (\Exception $exception) {
+            \Shopware()->PluginLogger()->log(\Monolog\Logger::CRITICAL, 'modelSubscriber::postUpdateArticle exception: ' . $exception->getMessage());
+            return;
+        }
+
         if ($blisstributeArticle->isTriggerSync()) {
             \Shopware()->PluginLogger()->log(\Monolog\Logger::DEBUG, 'modelSubscriber::postUpdateArticle done - trigger sync already set');
             return;
