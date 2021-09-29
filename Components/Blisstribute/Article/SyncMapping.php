@@ -154,7 +154,7 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
     {
         $identifications = [];
 
-        $articleNumber              = $articleDetail->getNumber();
+        $articleNumber              = $this->getArticleNumber($articleDetail);
         $ean13                      = $articleDetail->getEan();
         $manufacturerArticleNumber  = $this->getManufacturerArticleNumber($articleDetail);
 
@@ -420,12 +420,28 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
      * @return string
      * @throws Exception
      */
+    protected function getArticleNumber(Detail $articleDetail)
+    {
+        $fieldName = $this->getConfig()['blisstribute-article-number-mapping'];
+        if (empty($fieldName)) {
+            return $articleDetail->getNumber();
+        }
+
+        $this->logDebug('articleSyncMapping::getArticleNumber::use customer field::fieldName ' . $fieldName);
+        return $this->getDetailMapping($articleDetail, $fieldName);
+    }
+
+    /**
+     * @param Detail $articleDetail
+     * @return string
+     * @throws Exception
+     */
     protected function getClassification3(Detail $articleDetail)
     {
         $fieldName = $this->getConfig()['blisstribute-article-mapping-classification3'];
         $this->logDebug('articleSyncMapping::classification3::fieldName ' . $fieldName);
 
-        return $this->getClassification($articleDetail, $fieldName);
+        return $this->getDetailMapping($articleDetail, $fieldName);
     }
 
     /**
@@ -438,7 +454,7 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
         $fieldName = $this->getConfig()['blisstribute-article-mapping-classification4'];
         $this->logDebug('articleSyncMapping::classification4::fieldName ' . $fieldName);
 
-        return $this->getClassification($articleDetail, $fieldName);
+        return $this->getDetailMapping($articleDetail, $fieldName);
     }
 
     /**
@@ -486,7 +502,7 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
      * @param string $fieldName
      * @return string
      */
-    protected function getClassification(Detail $articleDetail, $fieldName)
+    protected function getDetailMapping(Detail $articleDetail, $fieldName)
     {
         if (trim($fieldName) == '') {
             return null;
@@ -495,11 +511,13 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
         $method = 'get' . str_replace(' ', '', ucwords(str_replace('_', ' ', $fieldName)));
 
         $attribute = $articleDetail->getAttribute();
-        $this->logDebug('articleSyncMapping::getClassification::detail attribute ' . $method);
+        $this->logDebug('articleSyncMapping::getDetailMapping::detail attribute ' . $method);
 
         if (method_exists($attribute, $method)) {
             return $attribute->$method();
         }
+
+        return '';
     }
 
     /**

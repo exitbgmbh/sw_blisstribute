@@ -8,11 +8,12 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.3.26",
+    "currentVersion": "1.3.27",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.3.27": "add option to get article number from another field",
             "1.3.26": "do not remove sync hash in post update; return unified data type in retail price",
             "1.3.25": "add separate isPaid evaluation to payments",
             "1.3.25": "always send product identifications with isPreferred flag",

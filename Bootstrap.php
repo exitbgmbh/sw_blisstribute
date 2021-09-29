@@ -631,6 +631,18 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             );
         }
 
+        if (version_compare($version, '1.3.27', '<')) {
+            $form->setElement(
+                'text',
+                'blisstribute-article-number-mapping',
+                array(
+                    'label' => 'Artikelnummer Verknüpfung',
+                    'description' => '',
+                    'value' => ''
+                )
+            );
+        }
+
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
     }
 
@@ -1793,6 +1805,15 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 'label' => 'Artikelbestand Verknüpfung',
                 'description' => '',
                 'value' => '',
+            )
+        );
+        $form->setElement(
+            'text',
+            'blisstribute-article-number-mapping',
+            array(
+                'label' => 'Artikelnummer Verknüpfung',
+                'description' => '',
+                'value' => ''
             )
         );
 
