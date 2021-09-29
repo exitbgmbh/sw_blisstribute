@@ -8,12 +8,11 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.3.26",
+    "currentVersion": "1.3.25",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
-            "1.3.26": "do not trigger sync if article has not changed and if necessary remove the trigger sync flag",
             "1.3.25": "add separate isPaid evaluation to payments",
             "1.3.25": "always send product identifications with isPreferred flag",
             "1.3.24": "add support for adyen payments",
