@@ -475,10 +475,10 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
         }
 
         if (version_compare(Shopware()->Config()->version, '5.2.0', '>=')) {
-            return $articleDetail->getPurchasePrice();
+            return (float)$articleDetail->getPurchasePrice();
         }
 
-        return $articleDetail->getPrices()->first()->getBasePrice();
+        return (float)$articleDetail->getPrices()->first()->getBasePrice();
     }
 
     /**

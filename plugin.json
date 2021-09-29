@@ -8,11 +8,12 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.3.25",
+    "currentVersion": "1.3.26",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.3.26": "do not remove sync hash in post update; return unified data type in retail price",
             "1.3.25": "add separate isPaid evaluation to payments",
             "1.3.25": "always send product identifications with isPreferred flag",
             "1.3.24": "add support for adyen payments",
