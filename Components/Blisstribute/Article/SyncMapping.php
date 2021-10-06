@@ -766,10 +766,18 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
      */
     protected function getMediaUrlByImage($image)
     {
+        /** @var \Shopware\Models\Media\Repository $respository */
+        $repository = Shopware()->Models()->getRepository(\Shopware\Models\Media\Media::class);
+        /** @var \Shopware\Models\Media\Media $media */
+        $media = $repository->find($image['mediaId']);
+        if ($media == null) {
+            return '';
+        }
+
         /** @var \Shopware\Bundle\MediaBundle\MediaService $mediaService */
         $mediaService = $this->container->get('shopware_media.media_service');
 
-        return $mediaService->getUrl('media/image/' . $image['path'] . '.' . $image['extension']);
+        return $mediaService->getUrl($media->getPath());
     }
 
     /**
