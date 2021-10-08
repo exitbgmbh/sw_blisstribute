@@ -66,6 +66,7 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
         $articleDetails = $this->getArticle()->getDetails();
         $articleData = [];
 
+        /** @var Detail $articleDetail */
         foreach ($articleDetails as $articleDetail) {
             $classifications = $this->buildClassificationData($articleDetail);
 
@@ -80,6 +81,8 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
 
                 'stockLevel'       => $this->getStockLevel($articleDetail),
                 'retailPrice'      => $this->getMainDetailBasePrice($articleDetail),
+
+                'remark'           => $this->getArticleComment($articleDetail),
 
                 // Unavailable fields in Shopware.
                 // 'unitType'            => Not used, because it would override on each sync.
@@ -125,6 +128,21 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
         // Allow plugins to change the data.
         return Enlight()->Events()->filter('ExitBBlisstribute_ArticleSyncMapping_AfterBuildBaseData', $articleData,
             ['subject' => $this, 'article' => $this->getArticle()]);
+    }
+
+    /**
+     * @param Detail $articleDetail
+     * @return string|null
+     */
+    private function getArticleComment(Detail $articleDetail)
+    {
+        $fieldName = $this->getConfig()['blisstribute-article-comment-mapping'];
+        if (empty($fieldName)) {
+            return '';
+        }
+
+        $this->logDebug('articleSyncMapping::getArticleComment::use customer field::fieldName ' . $fieldName);
+        return $this->getDetailMapping($articleDetail, $fieldName);
     }
 
     /**
