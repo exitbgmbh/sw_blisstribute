@@ -44,6 +44,8 @@ class Shopware_Components_Blisstribute_Order_Payment_Abstract
     {
         $this->order = $order;
         $this->payment = $payment;
+
+        $this->checkPaymentStatus();
     }
 
     /**
