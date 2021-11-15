@@ -8,11 +8,12 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.3.31",
+    "currentVersion": "1.3.32",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.3.32": "fixing optional fields",
             "1.3.31": "fixing checkPaymentStatus",
             "1.3.30": "add option to synchronize article comment",
             "1.3.29": "use image path from s_media instead of s_article_img",

@@ -117,7 +117,7 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
 
             // Only add optional fields that are not null to data.
             foreach ($optional as $k => $v) {
-                if ($v != null) {
+                if ($v !== null) {
                     $data[$k] = $v;
                 }
             }
