@@ -253,7 +253,7 @@ class Shopware_Components_Blisstribute_Article_Sync extends Shopware_Components_
      * Sends the request to synchronize the articles via REST API.
      *
      * @param array $articles
-     * @return mixed|\Psr\Http\Message\ResponseInterface
+     * @return Psr\Http\Message\ResponseInterface
      * @throws Exception
      */
     protected function processArticleSync(array $articles)
@@ -329,7 +329,7 @@ class Shopware_Components_Blisstribute_Article_Sync extends Shopware_Components_
 
         try {
             $response     = $this->processArticleSync($articleDataCollection);
-            $responseBody = $response->json();
+            $responseBody = json_decode($response->getBody()->getContents(), true);
 
             // Response must be successful.
             if (empty($responseBody)) {

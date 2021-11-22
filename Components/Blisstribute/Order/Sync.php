@@ -162,7 +162,8 @@ class Shopware_Components_Blisstribute_Order_Sync extends Shopware_Components_Bl
                     sprintf('Unexpected status code %d', $orderResponse->getStatusCode()));
             }
 
-            $syncWasSuccessful = ($orderResponse->json()['success'] ?? false);
+            $responseData = json_decode($orderResponse->getBody()->getContents(), true);
+            $syncWasSuccessful = ($responseData['success'] ?? false);
             if ($syncWasSuccessful) {
                 $result = true;
                 $this->logMessage('order transferred::' . $blisstributeOrder->getOrder()->getNumber(), __FUNCTION__);

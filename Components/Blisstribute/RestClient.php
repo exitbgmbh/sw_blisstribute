@@ -14,6 +14,11 @@ class Shopware_Components_Blisstribute_RestClient
     private $httpClient;
     const API_VERSION = 'v1';
 
+    private $header = [
+        'Accept'       => 'application/json',
+        'Content-Type' => 'application/json'
+    ];
+
     /**
      * Construct a new Blisstribute REST client.
      *
@@ -21,16 +26,22 @@ class Shopware_Components_Blisstribute_RestClient
      */
     public function __construct(string $baseUrl)
     {
-        $this->httpClient = new Client([
-            'base_url' => sprintf('%s/%s/', $baseUrl, self::API_VERSION),
-            'defaults' => [
-                'timeout' => 30,
-                'headers' => [
-                    'Accept'       => 'application/json',
-                    'Content-Type' => 'application/json',
-                ],
-            ]
-        ]);
+        if (defined('GuzzleHttp\Client::VERSION')) {
+            $this->httpClient = new Client([
+                'base_url' => sprintf('%s/%s/', $baseUrl, self::API_VERSION),
+                'defaults' => [
+                    'timeout' => 30,
+                    'headers' => [
+                        'Accept'       => 'application/json',
+                        'Content-Type' => 'application/json',
+                    ],
+                ]
+            ]);
+        } else {
+            $this->httpClient = new Client([
+                'base_uri' => sprintf('%s/%s/', $baseUrl, self::API_VERSION),
+            ]);
+        }
     }
 
     /**
@@ -39,12 +50,13 @@ class Shopware_Components_Blisstribute_RestClient
      * @param $path
      * @param array $data
      * @param array $query
-     * @return mixed|ResponseInterface
+     * @param array $header
+     * @return ResponseInterface
      */
     public function post($path, $data = [], $query = [])
     {
         return $this->httpClient
-                    ->post($path, ['json' => $data, 'query' => $query]);
+            ->post($path, ['json' => $data, 'query' => $query, 'headers' => $this->header]);
     }
 
     /**
@@ -52,12 +64,12 @@ class Shopware_Components_Blisstribute_RestClient
      * afterwards.
      *
      * @param string $apiKey
-     * @return string
+     * @return void
      * @throws Exception
      */
     public function authenticateWithApiKey(string $client, string $apiKey): string
     {
-        return $this->authenticate(['client' => $client, 'apiKey' => $apiKey]);
+        $this->authenticate(['client' => $client, 'apiKey' => $apiKey]);
     }
 
     /**
@@ -67,12 +79,12 @@ class Shopware_Components_Blisstribute_RestClient
      * @param string $client
      * @param string $user
      * @param string $password
-     * @return string
+     * @return void
      * @throws Exception
      */
     public function authenticateWithClientUserPassword(string $client, string $user, string $password): string
     {
-        return $this->authenticate([
+        $this->authenticate([
             'client'   => $client,
             'user'     => $user,
             'password' => $password,
@@ -81,29 +93,23 @@ class Shopware_Components_Blisstribute_RestClient
 
     /**
      * @param array $credentials
-     * @return string
+     * @return void
      * @throws Exception
      */
     private function authenticate(array $credentials): string
     {
-        // If the client is already authenticated return the token without reauthenticating.
-        // WARNING: This means the client is not yet designed to be used in long-running processes as the token will
-        //          expire after 8 hours and would cause an 401 error upon request of a protected endpoint.
-        // TODO: Handle expiration cases / exceptions by refreshing the token automatically.
-        if (!empty($this->httpClient->getDefaultOption('headers/Authorization'))) {
-            return $this->httpClient->getDefaultOption('headers/Authorization');
+        if (array_key_exists('Authorization', $this->header)) {
+            return;
         }
 
-        $response = $this->post('login/authenticate', $credentials)->json();
+        $response = json_decode($this->post('login/authenticate', $credentials)->getBody()->getContents(), true);
         $token    = $response['response']['jwt'] ?? false;
 
         if (!$token) {
             throw new Exception('Response missing token');
         }
 
-        $this->httpClient->setDefaultOption('headers/Authorization', 'Bearer ' . $token);
-
-        return $token;
+        $this->header['Authorization'] = 'Bearer ' . $token;
     }
 
     /**
@@ -111,7 +117,7 @@ class Shopware_Components_Blisstribute_RestClient
      * with a unique VHS identifier or not.
      *
      * @param array $products
-     * @return mixed|ResponseInterface
+     * @return ResponseInterface
      */
     public function createOrUpdateProduct(array $products)
     {
@@ -122,7 +128,7 @@ class Shopware_Components_Blisstribute_RestClient
      * Creates a single order.
      *
      * @param array $order
-     * @return mixed|ResponseInterface
+     * @return ResponseInterface
      */
     public function createOrder(array $order)
     {

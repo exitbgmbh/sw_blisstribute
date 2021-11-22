@@ -107,7 +107,9 @@ class Btarticlestock extends BtArticleResource
 
         $select = array(
             '(details.number) AS articleNumber',
+            '(details.ean) AS barcode',
             '(details.inStock) AS stock',
+            '(details.active) AS active',
             '(attribute.blisstributeVhsNumber) AS vhsArticleNumber',
         );
 
@@ -115,10 +117,6 @@ class Btarticlestock extends BtArticleResource
         $query = $builder->select($select)
             ->from('Shopware\Models\Article\Detail', 'details')
             ->join('details.attribute', 'attribute')
-            ->where('attribute.blisstributeVhsNumber != \'\'')
-            ->andWhere('attribute.blisstributeVhsNumber != 0')
-            ->andWhere('attribute.blisstributeVhsNumber IS NOT NULL')
-            ->addOrderBy('attribute.blisstributeVhsNumber', 'ASC')
             ->setFirstResult($this->calculateOffset($page, $limit))
             ->setMaxResults($limit)
             ->getQuery()
