@@ -67,7 +67,7 @@ class Shopware_Components_Blisstribute_RestClient
      * @return void
      * @throws Exception
      */
-    public function authenticateWithApiKey(string $client, string $apiKey): string
+    public function authenticateWithApiKey(string $client, string $apiKey)
     {
         $this->authenticate(['client' => $client, 'apiKey' => $apiKey]);
     }
@@ -82,7 +82,7 @@ class Shopware_Components_Blisstribute_RestClient
      * @return void
      * @throws Exception
      */
-    public function authenticateWithClientUserPassword(string $client, string $user, string $password): string
+    public function authenticateWithClientUserPassword(string $client, string $user, string $password)
     {
         $this->authenticate([
             'client'   => $client,
@@ -96,7 +96,7 @@ class Shopware_Components_Blisstribute_RestClient
      * @return void
      * @throws Exception
      */
-    private function authenticate(array $credentials): string
+    private function authenticate(array $credentials)
     {
         if (array_key_exists('Authorization', $this->header)) {
             return;

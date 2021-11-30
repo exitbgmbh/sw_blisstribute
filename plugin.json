@@ -8,11 +8,12 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.4.0",
+    "currentVersion": "1.4.1",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.4.1": "fixing compatibility",
             "1.4.0": "shopware 5.7 compatibility",
             "1.3.32": "fixing optional fields",
             "1.3.31": "fixing checkPaymentStatus",
