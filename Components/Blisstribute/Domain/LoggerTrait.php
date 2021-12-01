@@ -56,7 +56,7 @@ trait Shopware_Components_Blisstribute_Domain_LoggerTrait
     protected function _log($message, $level = Logger::INFO)
     {
         if ($this->_logger == null) {
-            $this->_logger = \Shopware()->PluginLogger();
+            $this->_logger = \Shopware()->Container()->get('pluginlogger');
         }
 
         $logMessage = 'blisstribute::' . $message;
