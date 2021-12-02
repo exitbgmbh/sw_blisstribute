@@ -143,9 +143,10 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
 
         $this->determineVoucherDiscount();
 
-        $this->orderData = $this->buildBasicOrderData();
+        $disablePaymentStatusCheck = (bool)$this->getConfig()['blisstribute-disable-payment-status-check'];
+        $this->orderData = $this->buildBasicOrderData($disablePaymentStatusCheck);
 
-        $this->orderData['payment']           = $this->buildPaymentData();
+        $this->orderData['payment']           = $this->buildPaymentData($disablePaymentStatusCheck);
         $this->orderData['advertisingMedium'] = $this->buildAdvertisingMediumData();
 
         $this->orderData['invoiceAddress']    = $this->buildAddressData('billing');
@@ -216,7 +217,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
      * @throws NonUniqueResultException
      * @throws Exception
      */
-    private function buildBasicOrderData()
+    private function buildBasicOrderData($disablePaymentStatusCheck = false)
     {
         $order          = $this->getModelEntity()->getOrder();
         $customer       = $order->getCustomer();
@@ -245,7 +246,8 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
             $orderShipLock = true;
         }
 
-        if ($order->getPaymentStatus()->getId() == 21) {
+
+        if ($order->getPaymentStatus()->getId() == 21 && !$disablePaymentStatusCheck) {
             $orderRemark[] = 'Zahlung prüfen - Shopware Zahlungshinweis';
             $orderShipLock = true;
         }
@@ -502,7 +504,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
      * @throws Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException
      * @throws NonUniqueResultException
      */
-    protected function buildPaymentData()
+    protected function buildPaymentData($disablePaymentStatusCheck = false)
     {
         $paymentRepository = $this->getPaymentMappingRepository();
         $payment = $paymentRepository->findOneByPayment($this->getModelEntity()->getOrder()->getPayment()->getId());
@@ -531,7 +533,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
 
         /** @var Shopware_Components_Blisstribute_Order_Payment_Abstract $orderPayment */
         $orderPayment = new $paymentClass($this->getModelEntity()->getOrder(), $payment);
-        return $orderPayment->getPaymentInformation($payment);
+        return $orderPayment->getPaymentInformation($payment, $disablePaymentStatusCheck);
     }
 
     /**

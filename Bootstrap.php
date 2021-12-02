@@ -655,6 +655,18 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             );
         }
 
+        if (version_compare($version, '1.4.2', '<')) {
+            $form->setElement(
+                'checkbox',
+                'blisstribute-disable-payment-status-check',
+                array(
+                    'label' => 'SW-Zahl-Status ignorieren',
+                    'description' => '',
+                    'value' => 0
+                )
+            );
+        }
+
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
     }
 
@@ -1904,6 +1916,16 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 'value' => 0,
                 'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
             ]
+        );
+
+        $form->setElement(
+            'checkbox',
+            'blisstribute-disable-payment-status-check',
+            array(
+                'label' => 'SW-Zahl-Status ignorieren',
+                'description' => '',
+                'value' => 0
+            )
         );
     }
 

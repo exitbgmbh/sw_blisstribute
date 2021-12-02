@@ -59,9 +59,13 @@ class Shopware_Components_Blisstribute_Order_Payment_Abstract
     /**
      * @return bool
      */
-    protected function isPaid()
+    protected function isPaid($disablePaymentStatusCheck = false)
     {
         if ($this->payment->getIsPayed()) {
+            if ($disablePaymentStatusCheck) {
+                return true;
+            }
+
             if ($this->order->getPaymentStatus()->getId() == Status::PAYMENT_STATE_COMPLETELY_PAID) {
                 return true;
             } else {
@@ -78,7 +82,7 @@ class Shopware_Components_Blisstribute_Order_Payment_Abstract
      * @param BlisstributePayment $blisstributePayment
      * @return array
      */
-    public function getPaymentInformation(BlisstributePayment $blisstributePayment)
+    public function getPaymentInformation(BlisstributePayment $blisstributePayment, $disablePaymentStatusCheck = false)
     {
         $paymentCosts = 0.00;
 
@@ -98,7 +102,7 @@ class Shopware_Components_Blisstribute_Order_Payment_Abstract
             $paymentTypeCode = $this->code;
         }
 
-        $isPaid = $this->isPaid();
+        $isPaid = $this->isPaid($disablePaymentStatusCheck);
         $payment = array(
             'total' => round($paymentCosts, 6),
             'code' => $paymentTypeCode,
