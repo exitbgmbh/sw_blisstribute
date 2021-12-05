@@ -174,10 +174,15 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
 
         $this->logDebug('orderSyncMapping::buildBaseData::done');
         $this->logDebug('orderSyncMapping::buildBaseData::result:' . json_encode($this->orderData));
-
-
-
-        return $this->orderData;
+        
+        // Allow plugins to change the data
+        return Enlight()->Events()->filter(
+            'ExitBBlisstribute_OrderSyncMapping_AfterBuildBaseData',
+            $this->orderData,
+            array(
+                'subject' => $this
+            )
+        );
     }
 
     /**
