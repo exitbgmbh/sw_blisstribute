@@ -8,11 +8,13 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.4.2",
+    "currentVersion": "1.4.3",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.4.3": "merged PR 67,70,71,72,73,74. thx to @resslinger",
+            "1.4.3": "failed payment state check switch order lock to order hold",
             "1.4.2": "add option to disable payment state check",
             "1.4.1": "fixing compatibility",
             "1.4.0": "shopware 5.7 compatibility",
