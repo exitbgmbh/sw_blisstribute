@@ -639,6 +639,8 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
 
         $mainShopCategories = $this->getMainShopCategories();
 
+        $seoCategoryId = Shopware()->Db()->fetchOne('SELECT category_id FROM s_articles_categories_seo WHERE shop_id = (SELECT id FROM s_core_shops WHERE `default` = 1) AND article_id = ?', [$this->getArticle()->getId()]);
+
         /** @var Category[] $categoryCollection */
         $categoryCollection = $this->getArticle()->getCategories()->toArray();
         foreach ($categoryCollection as $currentCategory) {
@@ -659,7 +661,9 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
             $baseCategory = $currentCategory;
             $deepLevel = $currentCategory->getLevel();
 
-            continue;
+            if ($currentCategory->getId() == $seoCategoryId) {
+                break;
+            }
         }
 
         if ($baseCategory == null) {
