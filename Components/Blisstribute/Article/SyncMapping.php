@@ -887,11 +887,17 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
             return $name;
         }
 
-        $optionValueCollection = array();
+        $optionValueCollection = [];
         /** @var \Shopware\Models\Article\Configurator\Option $currentConfiguratorOption */
         foreach ($articleDetail->getConfiguratorOptions() as $currentConfiguratorOption) {
-            $optionValueCollection[] = $currentConfiguratorOption->getName();
+            $groupPosition = $currentConfiguratorOption->getGroup()->getPosition();
+            $groupId = $currentConfiguratorOption->getGroup()->getId();
+            $key = $groupPosition . '#' . $groupId;
+
+            $optionValueCollection[$key] = $currentConfiguratorOption->getName();
         }
+
+        ksort($optionValueCollection);
 
         $name .= ' (' . implode(' | ', $optionValueCollection) . ')';
         return $name;
