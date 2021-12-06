@@ -667,6 +667,18 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             );
         }
 
+        if (version_compare($version, '1.4.4', '<')) {
+            $form->setElement(
+                'checkbox',
+                'blisstribute-force-product-serial-number',
+                array(
+                    'label' => 'Artikel-Seriennummer erzwingen',
+                    'description' => '',
+                    'value' => 0
+                )
+            );
+        }
+
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
     }
 
@@ -1923,6 +1935,16 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             'blisstribute-disable-payment-status-check',
             array(
                 'label' => 'SW-Zahl-Status ignorieren',
+                'description' => '',
+                'value' => 0
+            )
+        );
+
+        $form->setElement(
+            'checkbox',
+            'blisstribute-force-product-serial-number',
+            array(
+                'label' => 'Artikel-Seriennummer erzwingen',
                 'description' => '',
                 'value' => 0
             )

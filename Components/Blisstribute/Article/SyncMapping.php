@@ -83,6 +83,7 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
                 'retailPrice'      => $this->getMainDetailBasePrice($articleDetail),
 
                 'remark'           => $this->getArticleComment($articleDetail),
+                'hasSerialNumber'  => $this->determineSerialNumberNeccessary($articleDetail),
 
                 // Unavailable fields in Shopware.
                 // 'unitType'            => Not used, because it would override on each sync.
@@ -449,6 +450,22 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
 
         $this->logDebug('articleSyncMapping::getArticleNumber::use customer field::fieldName ' . $fieldName);
         return $this->getDetailMapping($articleDetail, $fieldName);
+    }
+
+    /**
+     * @param Detail $articleDetail
+     * @return bool
+     * @throws Exception
+     */
+    protected function determineSerialNumberNeccessary(Detail $articleDetail)
+    {
+        $forceSerialNumber = (bool)$this->getConfig()['blisstribute-force-product-serial-number'];
+        if ($forceSerialNumber) {
+            return true;
+        }
+
+        // maybe check for attributes field?
+        return false;
     }
 
     /**
