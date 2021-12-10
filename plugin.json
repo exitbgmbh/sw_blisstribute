@@ -8,11 +8,12 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.4.4",
+    "currentVersion": "1.4.5",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.4.5": "default ignore payment state",
             "1.4.4": "add option to force product serial number",
             "1.4.3": "merged PR 67,70,71,72,73,74. thx to @resslinger",
             "1.4.3": "failed payment state check switch order lock to order hold",

@@ -662,7 +662,7 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 array(
                     'label' => 'SW-Zahl-Status ignorieren',
                     'description' => '',
-                    'value' => 0
+                    'value' => 1
                 )
             );
         }
@@ -677,6 +677,10 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                     'value' => 0
                 )
             );
+        }
+
+        if (version_compare($version, '1.4.5', '<')) {
+            $form->getElement('blisstribute-force-product-serial-number')->setValue(1);
         }
 
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
@@ -1936,7 +1940,7 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             array(
                 'label' => 'SW-Zahl-Status ignorieren',
                 'description' => '',
-                'value' => 0
+                'value' => 1
             )
         );
 
