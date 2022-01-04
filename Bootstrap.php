@@ -679,10 +679,6 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             );
         }
 
-        if (version_compare($version, '1.4.5', '<')) {
-            $form->getElement('blisstribute-force-product-serial-number')->setValue(1);
-        }
-
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
     }
 
