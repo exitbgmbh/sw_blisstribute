@@ -13,6 +13,7 @@
 
     "changelog": {
         "de": {
+            "1.4.6": "default ignore payment state",
             "1.4.5": "default ignore payment state",
             "1.4.4": "add option to force product serial number",
             "1.4.3": "merged PR 67,70,71,72,73,74. thx to @resslinger",
