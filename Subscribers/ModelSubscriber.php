@@ -16,6 +16,7 @@ class ModelSubscriber implements SubscriberInterface
      * @var Container
      */
     private $container;
+    private $pluginlogger;
 
     /**
      * ModelSubscriber constructor

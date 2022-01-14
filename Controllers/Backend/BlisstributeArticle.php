@@ -97,7 +97,7 @@ class Shopware_Controllers_Backend_BlisstributeArticle extends Shopware_Controll
             }
         }
 
-        \Shopware()->PluginLogger()->log(Monolog\Logger::INFO, $builder->getQuery()->getSQL());
+        $this->logInfo($builder->getQuery()->getSQL());
 
 
         return $builder;
@@ -108,7 +108,7 @@ class Shopware_Controllers_Backend_BlisstributeArticle extends Shopware_Controll
      */
     protected function getFilterConditions($filters, $model, $alias, $whiteList = array())
     {
-        \Shopware()->PluginLogger()->log(Monolog\Logger::INFO, json_encode($filters));
+        $this->logInfo(json_encode($filters));
 
         if (count($filters) == 0) {
             return array();
