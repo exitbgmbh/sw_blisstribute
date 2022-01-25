@@ -662,7 +662,7 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 array(
                     'label' => 'SW-Zahl-Status ignorieren',
                     'description' => '',
-                    'value' => 1
+                    'value' => 0
                 )
             );
         }
