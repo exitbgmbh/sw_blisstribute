@@ -364,6 +364,17 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
                 }
 
                 $tax = $articleDetail->getArticle()->getTax()->getTax();
+                if ($shopConfig['blisstribute-product-evaluate-price-customergroup']) {
+                    $rules = $articleDetail->getArticle()->getTax()->getRules();
+                    foreach ($rules as $rule) {
+                        if ($currentPrice->getCustomerGroup()->getKey() != $shop['customerGroup']) {
+                            continue;
+                        }
+
+                        $tax = $rule->getTax();
+                    }
+                }
+
                 if ($currentPrice->getPseudoPrice() > 0) {
                     $prices[] = $this->formatPricesFromNetToGross(
                         $currentPrice->getPseudoPrice() * $shop['currencyFactor'],

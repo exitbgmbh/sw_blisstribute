@@ -679,6 +679,18 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             );
         }
 
+        if (version_compare($version, '1.4.7', '<')) {
+            $form->setElement(
+                'checkbox',
+                'blisstribute-product-evaluate-price-customergroup',
+                array(
+                    'label' => 'Kundengruppen-Regeln auf VK-Preise anwenden',
+                    'description' => '',
+                    'value' => 0
+                )
+            );
+        }
+
         return ['success' => true, 'invalidateCache' => ['backend', 'proxy', 'config']];
     }
 
@@ -1605,6 +1617,15 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
                 'description' => 'Wenn aktiviert, werden die Preise eines Artikels anhand der beim Shop hinterlegten Kundengruppe und Währung zusätzlich ins Blisstribute-System übertragen.',
                 'value' => 0
             ]
+        );
+        $form->setElement(
+            'checkbox',
+            'blisstribute-product-evaluate-price-customergroup',
+            array(
+                'label' => 'Kundengruppen-Regeln auf VK-Preise anwenden',
+                'description' => '',
+                'value' => 0
+            )
         );
         $form->setElement(
             'checkbox',
