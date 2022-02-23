@@ -97,8 +97,7 @@ class Shopware_Components_Blisstribute_Article_Sync extends Shopware_Components_
 
                             $currentArticle->setTriggerSync(false)
                                 ->setLastCronAt(new DateTime())
-                                ->setComment($ex->getMessage())
-                                ->setTries($currentArticle->getTries() + 1);
+                                ->setComment($ex->getMessage());
 
                             $this->modelManager->persist($currentArticle);
                             continue;
