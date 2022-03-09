@@ -346,32 +346,44 @@ class Shopware_Components_Blisstribute_Article_SyncMapping extends Shopware_Comp
             }
 
             $advertisingMediumCode = $shopConfig['blisstribute-default-advertising-medium'];
+            $this->logDebug('syncMapping::getPrices::use advertising medium:' . $advertisingMediumCode);
             if ($shopConfig['blisstribute-exclude-advertising-medium-from-shop-price']) {
                 $advertisingMediumCode = '';
+                $this->logDebug('syncMapping::getPrices::remove advertising medium due to config');
             }
 
             $transferPriceNet = (bool)$shopConfig['blisstribute-transfer-shop-price-net'];
+            $this->logDebug('syncMapping::getPrices::transfer prices net: '.(int)$transferPriceNet);
 
             /** @var Price[] $priceCollection */
             $priceCollection = $articleDetail->getPrices()->toArray();
             foreach ($priceCollection as $currentPrice) {
+                $this->logDebug('syncMapping::getPrices::testing price: '.(int)$currentPrice->getId());
                 if ($currentPrice->getCustomerGroup()->getKey() != $shop['customerGroup']) {
+                    $this->logDebug('syncMapping::getPrices::skipping price - invalid customer group key: '.$currentPrice->getCustomerGroup()->getKey());
                     continue;
                 }
 
                 if (!$shopConfig['blisstribute-transfer-scale-prices'] && $currentPrice->getFrom() > 1) {
+                    $this->logDebug('syncMapping::getPrices::skipping skale price');
+
                     continue;
                 }
 
                 $tax = $articleDetail->getArticle()->getTax()->getTax();
+                $this->logDebug('syncMapping::getPrices::use tax:' . $tax);
                 if ($shopConfig['blisstribute-product-evaluate-price-customergroup']) {
+                    $this->logDebug('syncMapping::getPrices::try updating tax');
                     $rules = $articleDetail->getArticle()->getTax()->getRules();
                     foreach ($rules as $rule) {
-                        if ($currentPrice->getCustomerGroup()->getKey() != $shop['customerGroup']) {
+                        if ($rule->getCustomerGroup()->getKey() != $shop['customerGroup']) {
                             continue;
                         }
 
+                        $this->logDebug('syncMapping::getPrices::update tax to rule:' . $rule->getName());
                         $tax = $rule->getTax();
+                        $this->logDebug('syncMapping::getPrices::new tax:' . $tax);
+                        break;
                     }
                 }
 
