@@ -1576,7 +1576,7 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             'blisstribute-google-maps-key',
             [
                 'label' => 'Google Maps Key',
-                'description' => 'API-KEY für den Zugang zur Google Maps API.',
+                'description' => 'API-KEY für den Zugang zur Google Maps API. Durch Angabe des Keys wird die Validierung automatisch aktiviert.',
                 'value' => ''
             ]
         );
@@ -1585,7 +1585,7 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
             'blisstribute-transfer-orders',
             [
                 'label' => 'Bestellungen ohne Adressvalidierung übertragen',
-                'description' => 'Wenn aktiviert, werden ausschließlich Bestellungen ins Blisstribute-System übertragen, deren Adressen erfolgreich verifiziert werden konnten.',
+                'description' => 'Wenn aktiviert, werden Bestellungen auch ohne erfolgreiche Adressvalidierung ins Blisstribute-System übertragen.',
                 'value' => 1
             ]
         );
