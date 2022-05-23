@@ -8,11 +8,12 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.4.8",
+    "currentVersion": "1.4.9",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.4.9": "adding generic and generic alias payment methods",
             "1.4.8": "more logging for price calculation in article sync",
             "1.4.7": "evaluate customergroup tax rules in product gross price calculation",
             "1.4.6": "default ignore payment state",

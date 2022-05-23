@@ -50,6 +50,8 @@ Ext.define('Shopware.apps.BlisstributePaymentMapping.view.list.Payment', {
         classNameRatePay: '{s name=blisstribute/paymentRatePay}RatePay{/s}',
         classNameDatatrans: '{s name=blisstribute/paymentDatatrans}Datatrans{/s}',
         classNameAdyen: '{s name=blisstribute/paymentAdyen}Adyen{/s}',
+        classNameGeneric: '{s name=blisstribute/paymentGeneric}Generic{/s}',
+        classNameGenericAlias: '{s name=blisstribute/paymentGenericAlias}GenericAlias{/s}',
     },
 
     configure: function() {
@@ -194,6 +196,12 @@ Ext.define('Shopware.apps.BlisstributePaymentMapping.view.list.Payment', {
                             case 'Adyen':
                                 return me.snippets.classNameAdyen;
 
+                            case 'Generic':
+                                return me.snippets.classNameGeneric;
+
+                            case 'GenericAlias':
+                                return me.snippets.classNameGenericAlias;
+
                             default:
                                 return me.snippets.classNameNone;
                         }
@@ -236,7 +244,9 @@ Ext.define('Shopware.apps.BlisstributePaymentMapping.view.list.Payment', {
                                 ['Mollie', me.snippets.classNameMollie],
                                 ['RatePay', me.snippets.classNameRatePay],
                                 ['Datatrans', me.snippets.classNameDatatrans],
-                                ['Adyen', me.snippets.classNameAdyen]
+                                ['Adyen', me.snippets.classNameAdyen],
+                                ['Generic', me.snippets.classNameGeneric],
+                                ['GenericAlias', me.snippets.classNameGenericAlias]
                             ]
                         }),
                         allowBlank: false,
