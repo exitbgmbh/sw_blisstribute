@@ -945,6 +945,10 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         }
 
         foreach ($bundlePackageIds as $key => $bundlePackageId) {
+            if (!isset($bundles[$key])) {
+                continue;
+            }
+
             $bundleDiscount = abs($bundles[$key]->getPrice());
             $totalBundleAmount = 0;
 
