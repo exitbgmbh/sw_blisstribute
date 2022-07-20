@@ -78,7 +78,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
     /**
      * @return array
      */
-    protected function getConfig()
+    protected function getConfig($plugin = 'ExitBBlisstribute')
     {
         $shop = $this->getModelEntity()->getOrder()->getShop();
         if (!$shop || $shop == null) {
@@ -97,7 +97,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         }
 
         $this->logInfo('orderSyncMapping::getConfig::using shop ' . $shop->getId() . ' / ' . $shop->getName());
-        $config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName('ExitBBlisstribute', $shop);
+        $config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName($plugin, $shop);
         return $config;
     }
 
@@ -671,6 +671,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         }
 
         $promotions = [];
+        $bundles = [];
         $shopwareDiscountsAmount = 0;
 
         /** @var ArticleRepository $articleRepository */
@@ -702,6 +703,10 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                 }
             }
 
+            if ($mode == 10 && $price <= 0) {
+                $bundles[] = $orderDetail;
+            }
+
             if ($mode > 0) {
                 continue;
             }
@@ -730,16 +735,19 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                     'articleNumber'   => $orderDetail->getArticleNumber(),
                     'originalPrice'   => $price,
                     'originalPriceAmount' => round(($price * $quantity), 2),
+                    'bundlePackageId' => '',
                 ],
             ];
 
             $articleData = $this->applyCustomProducts($articleData, $orderDetail, $basketItems);
+            $articleData = $this->applyBundleProducts($articleData, $orderDetail);
             $articleData = $this->applyStaticAttributeData($articleData, $article);
 
             $items[] = $articleData;
         }
 
         $items = $this->applyPromoDiscounts($items, $promotions, $shopwareDiscountsAmount);
+        $items = $this->applyBundleDiscounts($items, $bundles);
 
         if (!$this->getConfig()['blisstribute-order-include-vatrate']) {
             foreach ($items as &$item) {
@@ -906,6 +914,84 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         return $articleData;
     }
 
+    /**
+     * @param array $articleData
+     * @param Shopware\Models\Order\Detail $product
+     * @return mixed
+     */
+    public function applyBundleProducts($articleData, $product)
+    {
+        // check if plugin SwagCustomProducts is installed
+        $plugin = $this->getPluginRepository()->findOneBy([
+            'name' => 'SwagBundle',
+            'active' => true
+        ]);
+
+        if (!$plugin) {
+            return $articleData;
+        }
+
+        if (!empty($product->getAttribute()->getBundlePackageId())) {
+            $articleData['legacy']['bundlePackageId'] = $product->getAttribute()->getBundlePackageId();
+            $articleData['articleTitle'] = '(BUNDLE) ' . $articleData['articleTitle'];
+        }
+
+        return $articleData;
+    }
+
+    /**
+     * @param $items
+     * @param $bundles
+     * @return mixed
+     * @throws NonUniqueResultException
+     */
+    public function applyBundleDiscounts($items, $bundles)
+    {
+        $bundlePackageIds = [];
+
+        foreach ($items as $item) {
+            if (empty($item['legacy']['bundlePackageId'])) {
+                continue;
+            }
+
+            if (!in_array($item['legacy']['bundlePackageId'], $bundlePackageIds)) {
+                $bundlePackageIds[] = $item['legacy']['bundlePackageId'];
+            }
+        }
+
+        if (empty($bundlePackageIds) || empty($bundles)) {
+            return $items;
+        }
+
+        foreach ($bundlePackageIds as $key => $bundlePackageId) {
+            $bundleDiscount = abs($bundles[$key]->getPrice());
+            $totalBundleAmount = 0;
+
+            foreach ($items as $item) {
+                if ($bundlePackageId != $item['legacy']['bundlePackageId']) {
+                    continue;
+                }
+
+                $totalBundleAmount += round($item['legacy']['originalPriceAmount'], 4);
+            }
+
+            foreach ($items as &$item) {
+                if ($bundlePackageId != $item['legacy']['bundlePackageId']) {
+                    continue;
+                }
+
+                $weight = $item['legacy']['originalPriceAmount'] / $totalBundleAmount;
+                $singleDiscount = abs($bundleDiscount * $weight) / $item['quantity'];
+
+                $item['discount']              += round($singleDiscount, 4);
+                $item['price']                 -= round($singleDiscount, 4);
+            }
+
+            unset($item);
+        }
+
+        return $items;
+    }
 
     /**
      * @param $items
@@ -1133,9 +1219,23 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                 }
             }
 
+            // check if plugin SwagBundle is installed
+            $plugin = $this->getPluginRepository()->findOneBy([
+                'name' => 'SwagBundle',
+                'active' => true
+            ]);
+
+            $excludePercentalVoucherFromBundle = false;
+            if ($plugin) {
+                $pluginConfig = $this->getConfig('SwagBundle');
+
+                $excludePercentalVoucherFromBundle = ($pluginConfig['SwagBundleExcludeVoucher']) ? true : false;
+            }
+
             $vouchersData[$currentVoucher->getId()] = [
                 'coeExcludeSuppliers' => $coeExcludeSuppliers,
                 'coeReducedArticle' => $coeReducedArticle,
+                'excludePercentalVoucherFromBundle' => $excludePercentalVoucherFromBundle,
             ];
         }
 
@@ -1398,6 +1498,10 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
             }
         }
 
+        if ($voucher->getPercental() && !empty($product['legacy']['bundlePackageId']) && $vouchersData[$voucherId]['excludePercentalVoucherFromBundle']) {
+            return true;
+        }
+
         return false;
     }
 
@@ -1473,7 +1577,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         $voucherData = [];
 
         foreach ($this->getModelEntity()->getOrder()->getDetails() as $currentDetail) {
-            if (($currentDetail->getMode() == 4 || $currentDetail->getMode() == 3) && $currentDetail->getPrice() < 0) {
+            if (in_array($currentDetail->getMode(), [4, 3, 10]) && $currentDetail->getPrice() < 0) {
                 $voucherData[] = [
                     'code'               => $currentDetail->getArticleName(),
                     'discount'           => abs(round($currentDetail->getPrice(), 4)),
