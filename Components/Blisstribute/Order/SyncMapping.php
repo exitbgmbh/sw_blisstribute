@@ -1475,7 +1475,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         $voucherData = [];
 
         foreach ($this->getModelEntity()->getOrder()->getDetails() as $currentDetail) {
-            if (in_array($currentDetail->getMode(), [4, 3, 10]) && $currentDetail->getPrice() < 0) {
+            if (in_array($currentDetail->getMode(), [3, 4]) && $currentDetail->getPrice() < 0) {
                 $voucherData[] = [
                     'code'               => $currentDetail->getArticleName(),
                     'discount'           => abs(round($currentDetail->getPrice(), 4)),
