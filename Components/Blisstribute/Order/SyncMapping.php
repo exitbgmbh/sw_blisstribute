@@ -1470,10 +1470,12 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
      */
     protected function buildVouchersData()
     {
+        $couponMappingRepository = $this->getCouponMappingRepository();
+
         $voucherData = [];
 
         foreach ($this->getModelEntity()->getOrder()->getDetails() as $currentDetail) {
-            if (($currentDetail->getMode() == 4 || $currentDetail->getMode() == 3) && $currentDetail->getPrice() < 0) {
+            if (in_array($currentDetail->getMode(), [4, 3, 10]) && $currentDetail->getPrice() < 0) {
                 $voucherData[] = [
                     'code'               => $currentDetail->getArticleName(),
                     'discount'           => abs(round($currentDetail->getPrice(), 4)),
@@ -1504,11 +1506,13 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                 $voucherCode = $currentVoucher->getVoucherCode();
             }
 
+            $couponMapping = $couponMappingRepository->findByCoupon($currentVoucher->getId());
+
             $voucherData[] = [
                 'code'               => $voucherCode,
                 'discount'           => round($voucherDiscount, 4),
                 'discountPercentage' => $voucherPercentage,
-                'isMoneyVoucher'     => false,
+                'isMoneyVoucher'     => ($couponMapping != null && $couponMapping->getIsMoneyVoucher()),
             ];
         }
 
