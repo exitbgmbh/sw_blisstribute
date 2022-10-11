@@ -37,6 +37,10 @@ class Shopware_Components_Blisstribute_Order_Payment_PayPal
             throw new Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException('the transaction id is temporary, wait for completed transaction');
         }
 
+        if (empty($this->order->getTemporaryId()) || $this->order->getTransactionId() == $this->order->getTemporaryId()) {
+            throw new Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException('the transaction id is temporary, wait for completed transaction');
+        }
+
         return $status;
     }
 
