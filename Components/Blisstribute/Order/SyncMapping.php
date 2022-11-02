@@ -156,12 +156,32 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
         $this->orderData['vouchers']          = $this->buildVouchersData();
 
         $order               = $this->getModelEntity()->getOrder();
-        $originalTotal       = round($order->getInvoiceAmount(), 2);
-        $newOrderTotal       = round($this->getOrderTotal(), 2);
-        $orderTotalDeviation = $originalTotal - $newOrderTotal;
+        $originalTotal       = $order->getInvoiceAmount();
+        $newOrderTotal       = $this->getOrderTotal();
+        $orderTotalDeviation = round($originalTotal - $newOrderTotal, 2);
         $deviationWatermark  = round($this->getConfig()['blisstribute-discount-difference-watermark'], 2);
 
-        if (abs($orderTotalDeviation) > abs($deviationWatermark)) {
+        if (abs($orderTotalDeviation) <= 0.05) {
+            $remainingDeviation = $orderTotalDeviation;
+            foreach ($this->orderData['items'] as &$item) {
+                if ($remainingDeviation != 0 && $item['quantity'] == round(abs($remainingDeviation) * 100, 0) && $item['discount'] > 0) {
+                    $item['price']     += $remainingDeviation / $item['quantity'];
+                    $item['discount']  -= $remainingDeviation / $item['quantity'];
+                    $remainingDeviation = 0;
+                }
+            }
+
+            if ($remainingDeviation != 0) {
+                foreach ($this->orderData['items'] as &$item) {
+                    if ($remainingDeviation != 0 && $item['discount'] > 0) {
+                        $item['price']     += $remainingDeviation / $item['quantity'];
+                        $item['discount']  -= $remainingDeviation / $item['quantity'];
+                        $remainingDeviation = 0;
+                    }
+                }
+            }
+        }
+        else if (abs($orderTotalDeviation) > abs($deviationWatermark)) {
             $this->logWarn(sprintf('orderSyncMapping::buildBaseData::amount differs %s to %s', $originalTotal, $newOrderTotal));
             $this->logWarn(json_encode($this->orderData));
             $this->orderData['customerRemark'] .= 'RABATT PRÜFEN! (ORIG ' . $originalTotal .')';
@@ -190,15 +210,15 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
      */
     private function getOrderTotal()
     {
-        $orderTotal  = round($this->orderData['payment']['total'], 2);
-        $orderTotal += round($this->orderData['shipment']['total'], 2);
+        $orderTotal  = $this->orderData['payment']['total'];
+        $orderTotal += $this->orderData['shipment']['total'];
 
         foreach ($this->orderData['items'] as $currentItem) {
             if ($this->orderData['isB2B'] && $this->getConfig()['blisstribute-transfer-b2b-net']) {
                 // Convert to price after VAT.
-                $orderTotal += round((($currentItem['priceNet'] / 100) * (100 + $currentItem['vatRate'])) * $currentItem['quantity'], 2);
+                $orderTotal += (($currentItem['priceNet'] / 100) * (100 + $currentItem['vatRate'])) * $currentItem['quantity'];
             } else {
-                $orderTotal += round($currentItem['price'] * $currentItem['quantity'], 2);
+                $orderTotal += $currentItem['price'] * $currentItem['quantity'];
             }
         }
 
@@ -207,10 +227,10 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
                 continue;
             }
 
-            $orderTotal -= round(min($currentVoucher['discount'], $orderTotal), 2);
+            $orderTotal -= min($currentVoucher['discount'], $orderTotal);
         }
 
-        return $orderTotal;
+        return round($orderTotal, 2);
     }
 
     /**
@@ -1506,7 +1526,7 @@ class Shopware_Components_Blisstribute_Order_SyncMapping extends Shopware_Compon
 
             $voucherData[] = [
                 'code'               => $voucherCode,
-                'discount'           => round($voucherDiscount, 4),
+                'discount'           => round($voucherDiscount, 2),
                 'discountPercentage' => $voucherPercentage,
                 'isMoneyVoucher'     => false,
             ];
