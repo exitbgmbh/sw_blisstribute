@@ -8,11 +8,12 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.4.10",
+    "currentVersion": "1.4.11",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.4.11": "discount fix, paypal checkout v2 fix",
             "1.4.10": "rounding discounts",
             "1.4.9": "adding generic and generic alias payment methods",
             "1.4.8": "more logging for price calculation in article sync",
