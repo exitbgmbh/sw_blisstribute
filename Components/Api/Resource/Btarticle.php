@@ -171,7 +171,11 @@ class Btarticle extends BtArticleResource implements BatchInterface
             }
         }
 
-        $params['shippingTime'] = ($timeFrom + 1) . ' - ' . ($timeTo + 1);
+        if ($config['blisstribute-force-delivery-time-zero-with-no-stock']) {
+            $params['shippingTime'] = '';
+        } else {
+            $params['shippingTime'] = ($timeFrom + 1) . ' - ' . ($timeTo + 1);
+        }
 
         if (trim($params['attribute']['blisstributeEstimatedDeliveryDate']) == '0000-00-00') {
             $params['attribute']['blisstributeEstimatedDeliveryDate'] = null;

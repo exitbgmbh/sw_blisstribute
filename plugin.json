@@ -8,11 +8,12 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.4.11",
+    "currentVersion": "1.4.12",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.4.12": "option to reset delivery time for out of stock articles",
             "1.4.11": "discount fix, paypal checkout v2 fix",
             "1.4.10": "rounding discounts",
             "1.4.9": "adding generic and generic alias payment methods",
