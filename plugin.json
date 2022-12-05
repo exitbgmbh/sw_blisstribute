@@ -8,11 +8,12 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.4.12",
+    "currentVersion": "1.4.13",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.4.13": "Update payone payment status check for isPaid",
             "1.4.12": "option to reset delivery time for out of stock articles",
             "1.4.11": "discount fix, paypal checkout v2 fix",
             "1.4.10": "rounding discounts",

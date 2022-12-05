@@ -21,6 +21,19 @@ class Shopware_Components_Blisstribute_Order_Payment_PayOneCC
     /**
      * @inheritdoc
      */
+    protected function checkPaymentStatus()
+    {
+        $status = parent::checkPaymentStatus();
+        if (!$this->isPaid()) {
+            throw new Shopware_Components_Blisstribute_Exception_OrderPaymentMappingException('payment transaction status is not paid');
+        }
+
+        return $status;
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function getAdditionalPaymentInformation()
     {
         $orderAttribute = $this->order->getAttribute();
