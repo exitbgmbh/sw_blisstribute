@@ -178,9 +178,15 @@ class Btorder extends Resource
             }
 
             if (empty($detailModels)) {
+                if (version_compare(Shopware()->Config()->version, '5.7.0', '>=')) {
+                    $condition = 'attributes.articleDetailId = details.id';
+                } else {
+                    $condition = 'attributes.articleId = details.articleId';
+                }
+
                 $detailModels = $this->getOrderDetailRepository()
                     ->createQueryBuilder('details')
-                    ->innerJoin('Shopware\Models\Attribute\Article', 'attributes', Join::WITH, 'attributes.articleId = details.articleId')
+                    ->innerJoin('Shopware\Models\Attribute\Article', 'attributes', Join::WITH, $condition)
                     ->where('details.number = :orderNumber')
                     ->andWhere('attributes.blisstributeVhsNumber = :vhsArticleNumber')
                     ->setParameters(
