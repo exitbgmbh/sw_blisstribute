@@ -1920,6 +1920,17 @@ class Shopware_Plugins_Backend_ExitBBlisstribute_Bootstrap extends Shopware_Comp
         );
 
         $form->setElement(
+            'checkbox',
+            'blisstribute-b2c-force',
+            [
+                'label' => 'B2C Shop',
+                'description' => 'Wenn aktiviert, werden alle Bestellung aus dem aktuellen Shop als B2C übertragen.',
+                'value' => 0,
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
+            ]
+        );
+
+        $form->setElement(
             'number',
             'blisstribute-order-hold-limit',
             [
