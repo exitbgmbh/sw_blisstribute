@@ -8,11 +8,12 @@
     "link": "http://www.blisstribute.de",
     "author": "exitB GmbH",
 
-    "currentVersion": "1.4.14",
+    "currentVersion": "1.4.15",
     "isUpdateImportant": false,
 
     "changelog": {
         "de": {
+            "1.4.15": "Fixing mollie token regex check",
             "1.4.14": "Fixing installer for missing field force-b2c",
             "1.4.13": "Update payone payment status check for isPaid",
             "1.4.12": "option to reset delivery time for out of stock articles",
